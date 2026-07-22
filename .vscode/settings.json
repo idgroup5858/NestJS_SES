@@ -12,12 +12,14 @@
         ".prettierrc": true,
         "package-lock.json": true,
         "package.json": true,
-        "README.md": false,
+        "README.md": true,
         "tsconfig.build.json": true,
         "tsconfig.json": true,
         "nest-cli.json": true,
         "test": true,
-        "eslint.config.mjs": true
+        "eslint.config.mjs": true,
+        "src/role/role.controller.spec.ts": true,
+        "src/role/role.service.spec.ts": true
     },
     "hide-files.files": [
         "src/app.controller.spec.ts",
@@ -32,6 +34,8 @@
         "tsconfig.json",
         "nest-cli.json",
         "test",
-        "eslint.config.mjs"
+        "eslint.config.mjs",
+        "src/role/role.controller.spec.ts",
+        "src/role/role.service.spec.ts"
     ]
 }

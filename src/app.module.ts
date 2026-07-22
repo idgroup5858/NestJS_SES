@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [UserModule,
@@ -12,6 +13,7 @@ import { DatabaseModule } from './database/database.module';
       //envFilePath: 'src/config/.my-env-file', // Fayl src/config ichida bo'lsa
     }),
     DatabaseModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

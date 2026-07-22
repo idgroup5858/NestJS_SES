@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Role } from "src/role/entities/role.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -15,5 +16,9 @@ export class User {
     password:string;
     @CreateDateColumn()
     createdAt:Date;
+
+    @JoinColumn({ name: 'role_id' })
+    @ManyToOne(()=>Role, role=>role.user,{onDelete:"SET NULL"}) //cascade: true — Bu Saqlash (Insert/Update)  //faqat onDeleteUchun //CASCADE (Zanjirli o'chirish) //NO ACTION (Standart holat) //o'chirishni taqiqlaydi //SET DEFAULT //foydalanuvchining roli jadvaldagi standart (default) qiymatga qaytadi.
+    role:Role;
 
 }

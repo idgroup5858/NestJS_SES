@@ -4,7 +4,34 @@
         "**/.svn": true,
         "**/.hg": true,
         "**/.DS_Store": true,
-        "**/Thumbs.db": true
+        "**/Thumbs.db": true,
+        "src/app.controller.spec.ts": true,
+        "src/user/user.controller.spec.ts": true,
+        "src/user/user.service.spec.ts": true,
+        ".gitignore": true,
+        ".prettierrc": true,
+        "package-lock.json": true,
+        "package.json": true,
+        "README.md": false,
+        "tsconfig.build.json": true,
+        "tsconfig.json": true,
+        "nest-cli.json": true,
+        "test": true,
+        "eslint.config.mjs": true
     },
-    "hide-files.files": []
+    "hide-files.files": [
+        "src/app.controller.spec.ts",
+        "src/user/user.controller.spec.ts",
+        "src/user/user.service.spec.ts",
+        ".gitignore",
+        ".prettierrc",
+        "package-lock.json",
+        "package.json",
+        "README.md",
+        "tsconfig.build.json",
+        "tsconfig.json",
+        "nest-cli.json",
+        "test",
+        "eslint.config.mjs"
+    ]
 }

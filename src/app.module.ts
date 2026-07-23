@@ -5,6 +5,10 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { RoleModule } from './role/role.module';
+import { LaboratoryModule } from './laboratory/laboratory.module';
+import { AnalysisModule } from './analysis/analysis.module';
+import { RegionModule } from './region/region.module';
+import { PatientModule } from './patient/patient.module';
 
 @Module({
   imports: [UserModule,
@@ -14,6 +18,10 @@ import { RoleModule } from './role/role.module';
     }),
     DatabaseModule,
     RoleModule,
+    LaboratoryModule,
+    AnalysisModule,
+    RegionModule,
+    PatientModule
   ],
   controllers: [AppController],
   providers: [AppService],

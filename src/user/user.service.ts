@@ -71,7 +71,7 @@ export class UserService {
 
     if (search) {
       query.where(
-        'user.username LIKE :search OR user.surname LIKE :search',
+        'user.username ILIKE :search OR user.surname ILIKE :search', //LIKE MYSQL ILIKE POSTGRESQL
         { search: `%${search}%` }
       );
     }

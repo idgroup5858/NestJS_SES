@@ -19,7 +19,17 @@
         "test": true,
         "eslint.config.mjs": true,
         "src/role/role.controller.spec.ts": true,
-        "src/role/role.service.spec.ts": true
+        "src/role/role.service.spec.ts": true,
+        "src/laboratory/laboratory.controller.spec.ts": true,
+        "src/laboratory/laboratory.service.spec.ts": true,
+        "src/analysis/analysis.controller.spec.ts": true,
+        "src/analysis/analysis.service.spec.ts": true,
+        "src/region/region.controller.spec.ts": true,
+        "src/region/region.service.spec.ts": true,
+        "src/district/district.controller.spec.ts": true,
+        "src/district/district.service.spec.ts": true,
+        "src/patient/patient.controller.spec.ts": true,
+        "src/patient/patient.service.spec.ts": true
     },
     "hide-files.files": [
         "src/app.controller.spec.ts",
@@ -36,6 +46,16 @@
         "test",
         "eslint.config.mjs",
         "src/role/role.controller.spec.ts",
-        "src/role/role.service.spec.ts"
+        "src/role/role.service.spec.ts",
+        "src/laboratory/laboratory.controller.spec.ts",
+        "src/laboratory/laboratory.service.spec.ts",
+        "src/analysis/analysis.controller.spec.ts",
+        "src/analysis/analysis.service.spec.ts",
+        "src/region/region.controller.spec.ts",
+        "src/region/region.service.spec.ts",
+        "src/district/district.controller.spec.ts",
+        "src/district/district.service.spec.ts",
+        "src/patient/patient.controller.spec.ts",
+        "src/patient/patient.service.spec.ts"
     ]
 }

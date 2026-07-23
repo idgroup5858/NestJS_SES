@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity'; // O'zingizning entity yo'lingizni tekshiring
@@ -14,6 +14,12 @@ export class RoleService {
 
   // Yangi rol yaratish (Masalan: ADMIN, USER)
   async create(createRoleDto: CreateRoleDto) {
+    
+    const checkRole = await this.roleRepository.findOne({
+      where:{name: createRoleDto.name}
+    });
+    if (checkRole) throw new ConflictException("Role already exists");
+
     const role = this.roleRepository.create(createRoleDto);
     return await this.roleRepository.save(role);
   }

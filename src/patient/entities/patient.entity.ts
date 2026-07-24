@@ -24,8 +24,7 @@ export class Patient {
     @Column()
     sex: number;
 
-    @Column({nullable:true})
-    village: string;
+   
 
     @Column({nullable:true})
     passport_number: string;
@@ -36,8 +35,8 @@ export class Patient {
     @Column({ nullable: true })
     description: string;
 
-    @CreateDateColumn()
-    createdAt: Date;
+    @Column({nullable:true})
+    village: string;
 
     @ManyToOne(()=>District)
     @JoinColumn({name:"district_id"})
@@ -47,7 +46,8 @@ export class Patient {
     @JoinColumn({name:"owner_id"})
     owner:User;
 
-
+ @CreateDateColumn()
+    createdAt: Date;
 
 
 }

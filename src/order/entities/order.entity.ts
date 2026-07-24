@@ -2,37 +2,80 @@ import { Analysis } from "src/analysis/entities/analysis.entity";
 import { Laboratory } from "src/laboratory/entities/laboratory.entity";
 import { Patient } from "src/patient/entities/patient.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { OrderItem } from "./order_item.entity";
+import { District } from "src/region/entities/district.entity";
 
 
 @Entity()
 export class Order {
 
     @PrimaryGeneratedColumn()
-    id:number;
+    id: number;
 
     @Column()
-    order_type:string; //patient //sample //course
+    order_type: string; //patient //sample //course
+
+    @Column({ default: 'pending' })
+    status: string; // 'pending', 'partially_completed', 'completed', 'canceled'
+
+    // To'lov holati (alohida nazorat qilish uchun)
+    @Column({ default: 'pending' })
+    payment_status: string; // 'pending', 'paid', 'refunded'
+
+    // To'lov turi
+    @Column({ nullable: true })
+    payment_method: string; // 'cash' (naqd), 'card' (plastik), 'click' va h.k.
+
+    // Buyurtmaning umumiy summasi
+    @Column()
+    total_amount: string;
+
+    @Column({ nullable: true })
+    discount_amount: string;
+
+    @Column({ nullable: true })
+    final_amount: string;
+
+    @Column({ nullable: true })
+    street: string;
+
+    @Column({ nullable: true })
+    description: string;
+
+    @Column({ nullable: true })
+    village: string;
+
+    @ManyToOne(() => District, { nullable: true })
+    @JoinColumn({ name: "district_id" })
+    district: District|null;
 
 
-    @ManyToOne(()=>Laboratory)
-    laboratory:Laboratory;
-
-    @ManyToOne(()=>Analysis)
-    analysis:Analysis;
-
-    @ManyToOne(()=>User)
-    owner:User;
-
-    @ManyToOne(()=>Patient,{nullable:true})
-    patient:Patient;
-
-    
+    @ManyToOne(() => User)
+    owner: User;
 
 
+    @ManyToOne(() => Patient, { nullable: true })
+    patient: Patient|null;
 
+    @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
+    items: OrderItem[];
 
+    @UpdateDateColumn()
+    updatedAt: Date;
 
+    @CreateDateColumn()
+    createdAt: Date;    
 
-    
 }
+
+
+
+
+//  // 2-holat: Agar order_type === 'sample' bo'lsa, shtrix-kod yoki namuna raqami yoziladi
+    // @Column({ nullable: true })
+    // sample_code: string; 
+
+    // // 3-holat: Agar order_type === 'course' bo'lsa, tayyor paket ulanadi
+    // @ManyToOne(() => Course, { nullable: true })
+    // course: Course; 

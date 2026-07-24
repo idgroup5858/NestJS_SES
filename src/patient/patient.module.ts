@@ -10,5 +10,6 @@ import { UserModule } from 'src/user/user.module';
   imports: [TypeOrmModule.forFeature([Patient]), RegionModule,UserModule],
   controllers: [PatientController],
   providers: [PatientService],
+  exports:[PatientService]
 })
 export class PatientModule { }

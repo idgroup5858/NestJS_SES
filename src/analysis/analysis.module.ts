@@ -9,5 +9,6 @@ import { LaboratoryModule } from 'src/laboratory/laboratory.module';
   imports: [TypeOrmModule.forFeature([Analysis]), LaboratoryModule],
   controllers: [AnalysisController],
   providers: [AnalysisService],
+  exports:[AnalysisService]
 })
 export class AnalysisModule { }

@@ -11,6 +11,7 @@ import { RegionModule } from './region/region.module';
 import { PatientModule } from './patient/patient.module';
 import { OrderModule } from './order/order.module';
 import { PatternModule } from './pattern/pattern.module';
+import { ResultModule } from './result/result.module';
 
 @Module({
   imports: [UserModule,
@@ -25,7 +26,8 @@ import { PatternModule } from './pattern/pattern.module';
     RegionModule,
     PatientModule,
     OrderModule,
-    PatternModule
+    PatternModule,
+    ResultModule
   ],
   controllers: [AppController],
   providers: [AppService],

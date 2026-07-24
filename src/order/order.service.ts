@@ -372,6 +372,10 @@ export class OrderService {
         owner: true,
         patient: true,
         district: true,
+        result:{
+          lab_director:true,
+          result_item:true
+        }
       },
     });
     if (!order) {

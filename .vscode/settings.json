@@ -33,7 +33,9 @@
         "src/order/order.controller.spec.ts": true,
         "src/order/order.service.spec.ts": true,
         "src/pattern/pattern.controller.spec.ts": true,
-        "src/pattern/pattern.service.spec.ts": true
+        "src/pattern/pattern.service.spec.ts": true,
+        "src/result/result.controller.spec.ts": true,
+        "src/result/result.service.spec.ts": true
     },
     "hide-files.files": [
         "src/app.controller.spec.ts",
@@ -64,6 +66,8 @@
         "src/order/order.controller.spec.ts",
         "src/order/order.service.spec.ts",
         "src/pattern/pattern.controller.spec.ts",
-        "src/pattern/pattern.service.spec.ts"
+        "src/pattern/pattern.service.spec.ts",
+        "src/result/result.controller.spec.ts",
+        "src/result/result.service.spec.ts"
     ]
 }

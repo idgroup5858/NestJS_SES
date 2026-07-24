@@ -5,6 +5,7 @@ import { User } from "src/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrderItem } from "./order_item.entity";
 import { District } from "src/region/entities/district.entity";
+import { Result } from "src/result/entities/result.entity";
 
 
 @Entity()
@@ -63,6 +64,9 @@ export class Order {
 
     @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
     items: OrderItem[];
+
+    @OneToMany(() => Result, (result) => result.order, { cascade: true,nullable:true })
+    result: Result[];
 
     @UpdateDateColumn()
     updatedAt: Date;

@@ -23,21 +23,22 @@ export class UserService {
 
   ) { }
 
-  async create(createUserDto: CreateUserDto) {
+    async create(createUserDto: CreateUserDto) {
     const checkUser = await this.userRepository.findOne({
       where: { email: createUserDto.email },
     });
     if (checkUser) throw new ConflictException("User already exists");
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    //const isPasswordValid = await bcrypt.compare(password, user.password);
-    const user = this.userRepository.create({
-      ...createUserDto,
-      password: hashedPassword
-    })
 
-    if (createUserDto.role_id) {
-      const role = await this.roleService.findOne(createUserDto.role_id);
-      user.role = role
+    const { role_id, ...rest } = createUserDto;
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const user = this.userRepository.create({
+      ...rest,
+      password: hashedPassword,
+    });
+
+    if (role_id) {
+      user.role = await this.roleService.findOne(role_id);
     }
 
     await this.userRepository.save(user);
@@ -113,32 +114,30 @@ export class UserService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const checkUser = await this.userRepository.findOneBy({ id });
-    if (!checkUser) throw new NotFoundException("User not found");
+  const checkUser = await this.userRepository.findOneBy({ id });
+  if (!checkUser) throw new NotFoundException("User not found");
 
-    let hashedPassword = checkUser.password;
-    if (updateUserDto.password) {
-      hashedPassword = await bcrypt.hash(updateUserDto.password, 10);
-    }
+  const { role_id, password, ...rest } = updateUserDto;
 
+  const hashedPassword = password
+    ? await bcrypt.hash(password, 10)
+    : checkUser.password;
 
+  const user = await this.userRepository.preload({
+    id,
+    ...rest,
+    password: hashedPassword,
+  });
 
-    const user = await this.userRepository.preload({
-      id,
-      ...updateUserDto,
-      password: hashedPassword
-    });
+  if (!user) throw new NotFoundException();
 
-    if (!user) throw new NotFoundException()
-
-    if (updateUserDto.role_id) {
-      const role = await this.roleService.findOne(updateUserDto.role_id);
-      user.role = role
-    }
-    await this.userRepository.save(user)
-
-    return user;
+  if (role_id !== undefined) {
+    const role =  await this.roleService.findOne(role_id)
+    user.role = role     
   }
+
+  return this.userRepository.save(user);
+}
 
 
 

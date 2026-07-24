@@ -9,6 +9,7 @@ import { LaboratoryModule } from './laboratory/laboratory.module';
 import { AnalysisModule } from './analysis/analysis.module';
 import { RegionModule } from './region/region.module';
 import { PatientModule } from './patient/patient.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [UserModule,
@@ -21,7 +22,8 @@ import { PatientModule } from './patient/patient.module';
     LaboratoryModule,
     AnalysisModule,
     RegionModule,
-    PatientModule
+    PatientModule,
+    OrderModule
   ],
   controllers: [AppController],
   providers: [AppService],

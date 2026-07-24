@@ -29,7 +29,9 @@
         "src/district/district.controller.spec.ts": true,
         "src/district/district.service.spec.ts": true,
         "src/patient/patient.controller.spec.ts": true,
-        "src/patient/patient.service.spec.ts": true
+        "src/patient/patient.service.spec.ts": true,
+        "src/order/order.controller.spec.ts": true,
+        "src/order/order.service.spec.ts": true
     },
     "hide-files.files": [
         "src/app.controller.spec.ts",
@@ -56,6 +58,8 @@
         "src/district/district.controller.spec.ts",
         "src/district/district.service.spec.ts",
         "src/patient/patient.controller.spec.ts",
-        "src/patient/patient.service.spec.ts"
+        "src/patient/patient.service.spec.ts",
+        "src/order/order.controller.spec.ts",
+        "src/order/order.service.spec.ts"
     ]
 }

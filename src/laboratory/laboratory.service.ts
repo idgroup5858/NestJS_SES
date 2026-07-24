@@ -1,28 +1,42 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Laboratory } from './entities/laboratory.entity'; // Entity yo'lingizni tekshirib oling
+import { DeepPartial, Repository } from 'typeorm';
+import { Laboratory } from './entities/laboratory.entity';
 import { CreateLaboratoryDto } from './dto/create-laboratory.dto';
 import { UpdateLaboratoryDto } from './dto/update-laboratory.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class LaboratoryService {
   constructor(
     @InjectRepository(Laboratory)
-    private readonly laboratoryRepository: Repository<Laboratory>, // Bazaga ulanish
-  ) {}
+    private readonly laboratoryRepository: Repository<Laboratory>,
 
-  // 1. Yangi laboratoriya yaratish
+    private userService: UserService
+  ) { }
+
+
   async create(createLaboratoryDto: CreateLaboratoryDto) {
-    const laboratory = this.laboratoryRepository.create(createLaboratoryDto);
+
+    const { lab_director_id, ...rest } = createLaboratoryDto;
+
+    const laboratory = this.laboratoryRepository.create({
+      ...rest
+    });
+
+    if (createLaboratoryDto.lab_director_id) {
+      const user = await this.userService.findOne(createLaboratoryDto.lab_director_id);
+      laboratory.lab_director = user
+    }
     return await this.laboratoryRepository.save(laboratory);
   }
 
-  // 2. Barcha laboratoriyalarni olish
   async findAll() {
     return await this.laboratoryRepository.find({
-      relations:{
-        analysis:true
+      relations: {
+        analysis: true,
+        lab_director: true,
+        lab_assistants:true
       }
     });
   }
@@ -34,15 +48,9 @@ export class LaboratoryService {
     const skip = (page - 1) * limit;
 
     const query = this.laboratoryRepository.createQueryBuilder('laboratory')
-       .leftJoinAndSelect('laboratory.analysis', 'analysis')
-    // .leftJoinAndSelect('user.classs', 'classs')
-    // .leftJoinAndSelect('sale.items', 'items')
-    // .leftJoinAndSelect('sale.payments', 'payments')
-    // .leftJoinAndSelect('sale.user', 'user')
-    // .leftJoinAndSelect('items.warehouse', 'warehouse')
-    // .leftJoinAndSelect('items.product', 'product')
-    // .leftJoinAndSelect('sale.customer', 'customer');
-
+      .leftJoinAndSelect('laboratory.analysis', 'analysis')
+      .leftJoinAndSelect('laboratory.lab_director', 'lab_director')
+      .leftJoinAndSelect('laboratory.lab_assistants', 'lab_assistants')
 
     if (search) {
       query.where(
@@ -70,12 +78,14 @@ export class LaboratoryService {
 
   // 3. ID bo'yicha bitta laboratoriyani topish
   async findOne(id: number) {
-    const laboratory = await this.laboratoryRepository.findOne({ 
-      where:{id:id},
-      relations:{
-        analysis:true
+    const laboratory = await this.laboratoryRepository.findOne({
+      where: { id: id },
+      relations: {
+        analysis: true,
+        lab_director: true,
+        lab_assistants:true
       }
-     });
+    });
 
 
     if (!laboratory) {
@@ -84,28 +94,99 @@ export class LaboratoryService {
     return laboratory;
   }
 
-  // 4. Laboratoriya ma'lumotlarini yangilash
+
+
+
   async update(id: number, updateLaboratoryDto: UpdateLaboratoryDto) {
-    const laboratory = await this.laboratoryRepository.preload({
-      id,
-      ...updateLaboratoryDto,
-    });
+    const { lab_director_id, ...rest } = updateLaboratoryDto;
+
+    const laboratory = await this.laboratoryRepository.preload({ id, ...rest });
+
     if (!laboratory) {
       throw new NotFoundException(`ID: ${id} bo'lgan laboratoriya topilmadi!`);
     }
-    return await this.laboratoryRepository.save(laboratory);
+
+    if (lab_director_id !== undefined) {
+      const lab = await this.userService.findOne(lab_director_id);
+      laboratory.lab_director = lab
+    }
+
+    return this.laboratoryRepository.save(laboratory);
   }
 
-  // 5. Laboratoriyani bazadan o'chirish va muvaffaqiyatli xabar qaytarish
+  // async update(id: number, updateLaboratoryDto: UpdateLaboratoryDto) {
+  //     const { lab_director_id, ...rest } = updateLaboratoryDto;
+
+  //     const laboratory = await this.laboratoryRepository.preload({ id, ...rest });
+
+  //     if (!laboratory) {
+  //       throw new NotFoundException(`ID: ${id} bo'lgan laboratoriya topilmadi!`);
+  //     }
+
+  //     if (lab_director_id !== undefined) {
+  //       laboratory.lab_director = lab_director_id
+  //         ? await this.userService.findOne(lab_director_id)
+  //         : null;
+  //     }
+
+  //     return this.laboratoryRepository.save(laboratory);
+  //   }
+
+
   async remove(id: number) {
-    const laboratory = await this.findOne(id); // Avval borligini tekshiramiz
-    await this.laboratoryRepository.remove(laboratory); // O'chiramiz
-    
-    // Siz xohlagan muvaffaqiyatli xabar:
+    const laboratory = await this.findOne(id);
+    await this.laboratoryRepository.remove(laboratory);
+
+
     return {
       success: true,
       message: 'Laboratory deleted successfully',
       id: id,
     };
   }
+
+
+ async addAssistant(laboratoryId: number, userId: number) {
+  const laboratory = await this.laboratoryRepository.findOne({
+    where: { id: laboratoryId },
+    relations: { lab_assistants: true },
+  });
+
+  if (!laboratory) throw new NotFoundException('Laboratoriya topilmadi');
+
+  const user = await this.userService.findOne(userId);
+
+  const alreadyExists = laboratory.lab_assistants.find((a) => a.id === userId);
+
+  if (alreadyExists) {
+    throw new ConflictException('Bu foydalanuvchi allaqachon assistant');
+  }
+
+  laboratory.lab_assistants.push(user);
+  return this.laboratoryRepository.save(laboratory);
+}
+
+async removeAssistant(laboratoryId: number, userId: number) {
+  const laboratory = await this.laboratoryRepository.findOne({
+    where: { id: laboratoryId },
+    relations: { lab_assistants: true },
+  });
+
+  if (!laboratory) throw new NotFoundException('Laboratoriya topilmadi');
+
+  const assistant = laboratory.lab_assistants.find((a) => a.id === userId);
+
+  if (!assistant) {
+    throw new NotFoundException('Bu foydalanuvchi laboratoriya assistanti emas');
+  }
+
+  laboratory.lab_assistants = laboratory.lab_assistants.filter(
+    (a) => a.id !== userId,
+  );
+
+  return this.laboratoryRepository.save(laboratory);
+}
+
+
+
 }

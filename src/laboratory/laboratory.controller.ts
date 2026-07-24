@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
 import { LaboratoryService } from './laboratory.service';
 import { CreateLaboratoryDto } from './dto/create-laboratory.dto';
 import { UpdateLaboratoryDto } from './dto/update-laboratory.dto';
@@ -39,5 +39,24 @@ export class LaboratoryController {
   @Delete('delete/:id')
   remove(@Param('id') id: string) {
     return this.laboratoryService.remove(+id);
+  }
+
+
+  // Lab assistant qo'shish
+  @Post('assistant/:id/:userId')
+  addAssistant(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.laboratoryService.addAssistant(+id, +userId);
+  }
+
+  // Lab assistant olib tashlash
+  @Delete('assistant/:id/:userId')
+  removeAssistant(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.laboratoryService.removeAssistant(+id, +userId);
   }
 }

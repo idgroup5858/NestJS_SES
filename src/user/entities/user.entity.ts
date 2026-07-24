@@ -18,7 +18,7 @@ export class User {
     createdAt:Date;
 
     @JoinColumn({ name: 'role_id' })
-    @ManyToOne(()=>Role, role=>role.user,{onDelete:"SET NULL"}) //cascade: true — Bu Saqlash (Insert/Update)  //faqat onDeleteUchun //CASCADE (Zanjirli o'chirish) //NO ACTION (Standart holat) //o'chirishni taqiqlaydi //SET DEFAULT //foydalanuvchining roli jadvaldagi standart (default) qiymatga qaytadi.
+    @ManyToOne(()=>Role, role=>role.user,{onDelete:"SET NULL",nullable:true}) //cascade: true — Bu Saqlash (Insert/Update)  //faqat onDeleteUchun //CASCADE (Zanjirli o'chirish) //NO ACTION (Standart holat) //o'chirishni taqiqlaydi //SET DEFAULT //foydalanuvchining roli jadvaldagi standart (default) qiymatga qaytadi.
     role:Role;
 
 }

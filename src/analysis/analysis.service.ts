@@ -39,7 +39,7 @@ export class AnalysisService {
   async findAll() {
     return await this.analysisRepository.find({
       relations:{
-        laboratory:true
+        laboratory:{lab_director:true}
       }
     });
   }

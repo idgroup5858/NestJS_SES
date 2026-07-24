@@ -1,5 +1,6 @@
 import { Laboratory } from "src/laboratory/entities/laboratory.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Pattern } from "src/pattern/entities/pattern.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Analysis {
@@ -22,4 +23,7 @@ export class Analysis {
     @ManyToOne(()=> Laboratory,laboratory=>laboratory.analysis,{onDelete:"CASCADE"})
     @JoinColumn({name:"laboratory_id"})
     laboratory:Laboratory;
+
+    @OneToMany(()=>Pattern,pattern => pattern.analysis,{nullable:true})
+    pattern:Pattern[];
 }

@@ -7,27 +7,27 @@ import { UpdatePatternDto } from './dto/update-pattern.dto';
 export class PatternController {
   constructor(private readonly patternService: PatternService) {}
 
-  @Post()
+  @Post("add")
   create(@Body() createPatternDto: CreatePatternDto) {
     return this.patternService.create(createPatternDto);
   }
 
-  @Get()
+  @Get("getall")
   findAll() {
     return this.patternService.findAll();
   }
 
-  @Get(':id')
+  @Get('getby/:id')
   findOne(@Param('id') id: string) {
     return this.patternService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   update(@Param('id') id: string, @Body() updatePatternDto: UpdatePatternDto) {
     return this.patternService.update(+id, updatePatternDto);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   remove(@Param('id') id: string) {
     return this.patternService.remove(+id);
   }

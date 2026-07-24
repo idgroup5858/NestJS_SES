@@ -64,6 +64,7 @@ export class OrderService {
     // 4. Asosiy Order obyektini yaratamiz
     const order = this.orderRepository.create({
       order_type: dto.order_type,
+      name:dto.name,
       status: 'pending',
       payment_status: 'pending',
       payment_method: dto.payment_method,
@@ -393,6 +394,7 @@ export class OrderService {
 
     // Oddiy maydonlarni yangilaymiz (kelgan bo'lsagina)
     if (dto.order_type !== undefined) order.order_type = dto.order_type;
+    if (dto.name !== undefined) order.name = dto.name;
     if (dto.payment_method !== undefined) order.payment_method = dto.payment_method;
     if (dto.street !== undefined) order.street = dto.street;
     if (dto.village !== undefined) order.village = dto.village;

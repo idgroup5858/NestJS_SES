@@ -10,6 +10,10 @@ export class CreateOrderDto {
 
     @IsOptional()
     @IsString()
+    name?: string;
+
+    @IsOptional()
+    @IsString()
     payment_method?: string;
 
     @IsOptional()

@@ -90,7 +90,8 @@ export class AnalysisService {
     const analysis = await this.analysisRepository.findOne({ 
       where:{id:id},
       relations:{
-        laboratory:true
+        laboratory:true,
+        pattern:true
       }
     });
     if (!analysis) {

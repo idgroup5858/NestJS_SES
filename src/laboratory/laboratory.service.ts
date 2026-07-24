@@ -100,7 +100,9 @@ export class LaboratoryService {
   async update(id: number, updateLaboratoryDto: UpdateLaboratoryDto) {
     const { lab_director_id, ...rest } = updateLaboratoryDto;
 
-    const laboratory = await this.laboratoryRepository.preload({ id, ...rest });
+    const laboratory = await this.laboratoryRepository.preload({ 
+      id, ...rest
+     });
 
     if (!laboratory) {
       throw new NotFoundException(`ID: ${id} bo'lgan laboratoriya topilmadi!`);

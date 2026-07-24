@@ -1,1 +1,4 @@
-export class CreatePatternDto {}
+export class CreatePatternDto {
+
+    analysis_id:number
+}

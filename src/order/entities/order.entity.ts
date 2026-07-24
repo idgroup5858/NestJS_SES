@@ -16,6 +16,9 @@ export class Order {
     @Column()
     order_type: string; //patient //sample //course
 
+    @Column({ nullable: true })
+    name: string;
+
     @Column({ default: 'pending' })
     status: string; // 'pending', 'partially_completed', 'completed', 'canceled'
 

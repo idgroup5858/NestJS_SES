@@ -9,19 +9,25 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { RoleService } from 'src/role/role.service';
+import { ClsService } from 'nestjs-cls';
+
+import { TenantRepository } from 'src/tenant.repository';
 
 
 @Injectable()
-export class UserService {
+export class UserService extends TenantRepository<User> {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    readonly userRepository: Repository<User>,
 
 
     private readonly jwtService: JwtService,
-    private roleService: RoleService
+    private roleService: RoleService,
 
-  ) { }
+      readonly cls: ClsService, 
+
+
+  ) { super(userRepository, cls);}
 
     async create(createUserDto: CreateUserDto) {
     const checkUser = await this.userRepository.findOne({
@@ -46,7 +52,10 @@ export class UserService {
   }
 
   async findAll() {
-    return this.userRepository.find({
+    const username = this.cls.get<string>('username');
+    console.log(username);
+    
+    return this.find({
       relations: {
         role: true
       }

@@ -12,12 +12,18 @@ import { PatientModule } from './patient/patient.module';
 import { OrderModule } from './order/order.module';
 import { PatternModule } from './pattern/pattern.module';
 import { ResultModule } from './result/result.module';
+import { ClsModule } from 'nestjs-cls';
+import { CompanyModule } from './company/company.module';
 
 @Module({
   imports: [UserModule,
     ConfigModule.forRoot({
       isGlobal: true, // Shu qator env-ni global qiladi
       //envFilePath: 'src/config/.my-env-file', // Fayl src/config ichida bo'lsa
+    }),
+     ClsModule.forRoot({
+      global: true,
+      middleware: { mount: true }, // Request boshlanganda bo'sh xotira konteynerini ochib beradi
     }),
     DatabaseModule,
     RoleModule,
@@ -27,7 +33,8 @@ import { ResultModule } from './result/result.module';
     PatientModule,
     OrderModule,
     PatternModule,
-    ResultModule
+    ResultModule,
+    CompanyModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,3 +1,4 @@
+import { Company } from "src/company/entities/company.entity";
 import { Role } from "src/role/entities/role.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -14,6 +15,12 @@ export class User {
     email:string;
     @Column()
     password:string;
+
+    @ManyToOne(()=>Company)
+    @JoinColumn({name:"company_id"})
+    company:Company;
+
+
     @CreateDateColumn()
     createdAt:Date;
 

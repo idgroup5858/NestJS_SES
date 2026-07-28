@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './entities/jwt.strategy';
 import { RoleModule } from 'src/role/role.module';
+import { CompanyModule } from 'src/company/company.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]),
@@ -16,7 +17,7 @@ import { RoleModule } from 'src/role/role.module';
       secret: config.get<string>('JWT_ACCESS_SECRET'),
     }), // for genereted token
   }),
-    RoleModule],
+    RoleModule,CompanyModule],
   controllers: [UserController],
   providers: [UserService, JwtStrategy],
   exports:[UserService]

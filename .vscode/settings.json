@@ -12,7 +12,7 @@
         ".prettierrc": true,
         "package-lock.json": true,
         "package.json": true,
-        "README.md": false,
+        "README.md": true,
         "tsconfig.build.json": true,
         "tsconfig.json": true,
         "nest-cli.json": true,
@@ -35,7 +35,9 @@
         "src/pattern/pattern.controller.spec.ts": true,
         "src/pattern/pattern.service.spec.ts": true,
         "src/result/result.controller.spec.ts": true,
-        "src/result/result.service.spec.ts": true
+        "src/result/result.service.spec.ts": true,
+        "src/company/company.controller.spec.ts": true,
+        "src/company/company.service.spec.ts": true
     },
     "hide-files.files": [
         "src/app.controller.spec.ts",
@@ -68,6 +70,8 @@
         "src/pattern/pattern.controller.spec.ts",
         "src/pattern/pattern.service.spec.ts",
         "src/result/result.controller.spec.ts",
-        "src/result/result.service.spec.ts"
+        "src/result/result.service.spec.ts",
+        "src/company/company.controller.spec.ts",
+        "src/company/company.service.spec.ts"
     ]
 }

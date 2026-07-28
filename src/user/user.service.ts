@@ -10,12 +10,13 @@ import { LoginDto } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { RoleService } from 'src/role/role.service';
 import { ClsService } from 'nestjs-cls';
+import { CompanyService } from 'src/company/company.service';
 
-import { TenantRepository } from 'src/tenant.repository';
+
 
 
 @Injectable()
-export class UserService extends TenantRepository<User> {
+export class UserService {
   constructor(
     @InjectRepository(User)
     readonly userRepository: Repository<User>,
@@ -23,19 +24,20 @@ export class UserService extends TenantRepository<User> {
 
     private readonly jwtService: JwtService,
     private roleService: RoleService,
+    private companyService: CompanyService,
 
-      readonly cls: ClsService, 
+    readonly cls: ClsService,
 
 
-  ) { super(userRepository, cls);}
+  ) { }
 
-    async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     const checkUser = await this.userRepository.findOne({
       where: { email: createUserDto.email },
     });
     if (checkUser) throw new ConflictException("User already exists");
 
-    const { role_id, ...rest } = createUserDto;
+    const { role_id, company_id, ...rest } = createUserDto;
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const user = this.userRepository.create({
@@ -46,16 +48,20 @@ export class UserService extends TenantRepository<User> {
     if (role_id) {
       user.role = await this.roleService.findOne(role_id);
     }
+    if (company_id) {
+      user.company = await this.companyService.findOne(company_id);
+    }
 
     await this.userRepository.save(user);
     return user;
   }
 
   async findAll() {
-    const username = this.cls.get<string>('username');
-    console.log(username);
-    
-    return this.find({
+    const company_id = this.cls.get<number>('company_id');
+    return this.userRepository.find({
+      where: {
+        company: { id: company_id }
+      },
       relations: {
         role: true
       }
@@ -63,6 +69,10 @@ export class UserService extends TenantRepository<User> {
   }
 
   async findAllPagSearch(page: number, limit: number, search?: string) {
+
+    const company_id = this.cls.get<number>('company_id');
+
+
     page = page > 0 ? page : 1;
     limit = limit > 0 ? limit : 10;
 
@@ -77,6 +87,10 @@ export class UserService extends TenantRepository<User> {
     // .leftJoinAndSelect('items.warehouse', 'warehouse')
     // .leftJoinAndSelect('items.product', 'product')
     // .leftJoinAndSelect('sale.customer', 'customer');
+
+    if(company_id){
+      query.where('user.company_id = :company_id', { company_id: company_id });
+    }
 
 
     if (search) {
@@ -105,9 +119,12 @@ export class UserService extends TenantRepository<User> {
 
 
   async findOne(id: number) {
+    const company_id = this.cls.get<number>('company_id');
     const checkUser = await this.userRepository.findOne(
       {
-        where: { id: id },
+        where: { id: id,
+          company:{id:company_id}
+         },
         // relations: [
 
         //   'userSubjects',          // 1. Ustozning hamma fan birikmalarini oladi
@@ -123,38 +140,37 @@ export class UserService extends TenantRepository<User> {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-  const checkUser = await this.userRepository.findOneBy({ id });
-  if (!checkUser) throw new NotFoundException("User not found");
+    const checkUser = await this.findOne(id);
+   
 
-  const { role_id, password, ...rest } = updateUserDto;
+    const { role_id, password, ...rest } = updateUserDto;
 
-  const hashedPassword = password
-    ? await bcrypt.hash(password, 10)
-    : checkUser.password;
+    const hashedPassword = password
+      ? await bcrypt.hash(password, 10)
+      : checkUser.password;
 
-  const user = await this.userRepository.preload({
-    id,
-    ...rest,
-    password: hashedPassword,
-  });
+    const user = await this.userRepository.preload({
+      id,
+      ...rest,
+      password: hashedPassword,
+    });
 
-  if (!user) throw new NotFoundException();
+    if (!user) throw new NotFoundException();
 
-  if (role_id !== undefined) {
-    const role =  await this.roleService.findOne(role_id)
-    user.role = role     
+    if (role_id !== undefined) {
+      const role = await this.roleService.findOne(role_id)
+      user.role = role
+    }
+
+    return this.userRepository.save(user);
   }
-
-  return this.userRepository.save(user);
-}
 
 
 
 
 
   async remove(id: number) {
-    const checkUser = await this.userRepository.findOneBy({ id });
-    if (!checkUser) throw new NotFoundException("User not found");
+     const checkUser = await this.findOne(id);
     await this.userRepository.remove(checkUser);
     return { message: "User deleted" };
   }
@@ -167,8 +183,11 @@ export class UserService extends TenantRepository<User> {
   //AUTH
   async login(loginDto: LoginDto) {
 
-    const user = await this.userRepository.findOneBy({
-      email: loginDto.email,
+    const user = await this.userRepository.findOne({
+      where:{
+        email: loginDto.email,
+      },
+      relations:{company:true}
     });
 
     if (!user) throw new NotFoundException("User not found");
@@ -183,6 +202,7 @@ export class UserService extends TenantRepository<User> {
       username: user.username,
       email: user.email,
       tokenType: 'access',
+      company_id: user.company.id
     };
     const accessToken = this.jwtService.sign(accessTokenPayload, {
       expiresIn: '15d',
@@ -194,6 +214,7 @@ export class UserService extends TenantRepository<User> {
       username: user.username,
       email: user.email,
       tokenType: 'refresh',
+      company_id: user.company.id
     };
     const refreshToken = this.jwtService.sign(refreshTokenPayload, {
       expiresIn: '30d',
@@ -236,7 +257,8 @@ export class UserService extends TenantRepository<User> {
         id: tokenVerify.id,
         username: tokenVerify.username,
         email: tokenVerify.email,
-        tokenType: tokenVerify.tokenType
+        tokenType: tokenVerify.tokenType,
+        company_id: tokenVerify.company_id
       };
     } catch {
       throw new UnauthorizedException('Invalid or expired token');
@@ -261,6 +283,7 @@ export class UserService extends TenantRepository<User> {
         username: refreshTokenVerify.username,
         email: refreshTokenVerify.email,
         tokenType: 'access',
+        company_id: refreshTokenVerify.company_id
       };
       const accessToken = this.jwtService.sign(accessTokenPayload, {
         expiresIn: '15d',
@@ -298,7 +321,7 @@ export interface JwtPayload {
   username: string;
   email: string;
   tokenType: string;
-
+  company_id: number;
   // iat, exp optional
   iat?: number;
   exp?: number;

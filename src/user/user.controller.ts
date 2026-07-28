@@ -33,16 +33,20 @@ export class UserController {
     return this.userService.findAllPagSearch(+page, +limit, search);
   }
 
+  @UseGuards(AuthGuard("jwt"))
   @Get('getby/:id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
 
+
+  @UseGuards(AuthGuard("jwt"))
   @Patch('update/:id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
 
+  @UseGuards(AuthGuard("jwt"))
   @Delete('delete/:id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
@@ -66,3 +70,34 @@ export class UserController {
     return this.userService.refreshToken(refreshToken)
   }
 }
+
+
+/*
+
+
+// controller'da
+@UseGuards(AuthGuard('jwt'), TenantGuard)
+@Get('getall')
+findAll() {
+  return this.userService.findAll();
+}
+
+// common/tenant.guard.ts
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { ClsService } from 'nestjs-cls';
+
+@Injectable()
+export class TenantGuard implements CanActivate {
+  constructor(private cls: ClsService) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const companyId = this.cls.get('companyId');
+    if (!companyId) {
+      throw new UnauthorizedException('companyId topilmadi');
+    }
+    return true;
+  }
+}
+
+
+*/

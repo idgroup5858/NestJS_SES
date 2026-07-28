@@ -44,7 +44,7 @@ export class CreateOrderDto {
     @IsNumber()
     owner_id: number;
 
-    // DIQQAT: Siz so'ragan qism. 
+   
     // IsArray va ValidateNested ichidagi elementlarni avtomatik tekshirish uchun kerak
     @IsNotEmpty()
     @IsArray()

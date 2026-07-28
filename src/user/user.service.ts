@@ -42,12 +42,13 @@ export class UserService {
 
     const user = this.userRepository.create({
       ...rest,
+      role:{id:role_id},
       password: hashedPassword,
     });
 
-    if (role_id) {
-      user.role = await this.roleService.findOne(role_id);
-    }
+    // if (role_id) {
+    //   user.role = await this.roleService.findOne(role_id);
+    // }
     if (company_id) {
       user.company = await this.companyService.findOne(company_id);
     }

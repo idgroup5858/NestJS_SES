@@ -16,9 +16,9 @@ export class User {
     @Column()
     password:string;
 
-    @ManyToOne(()=>Company)
-    @JoinColumn({name:"company_id"})
-    company:Company;
+    // @ManyToOne(()=>Company)
+    // @JoinColumn({name:"company_id"})
+    // company:Company;
 
 
     @CreateDateColumn()

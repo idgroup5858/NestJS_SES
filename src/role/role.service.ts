@@ -17,7 +17,7 @@ export class RoleService {
 
   // Yangi rol yaratish (Masalan: ADMIN, USER)
   async create(createRoleDto: CreateRoleDto) {
-    const company_id = this.cls.get<number>('company_id');
+    //const company_id = this.cls.get<number>('company_id');
    
     const checkRole = await this.roleRepository.findOne({
       where: { name: createRoleDto.name }
@@ -26,18 +26,16 @@ export class RoleService {
 
     const role = this.roleRepository.create({
       ...createRoleDto,
-      company: { id: company_id }
+      //company: { id: company_id }
     });
     return await this.roleRepository.save(role);
   }
 
   // Barcha rollarni olish
   async findAll() {
-    const company_id = this.cls.get<number>('company_id');
+    //const company_id = this.cls.get<number>('company_id');
     return await this.roleRepository.find({
-      where: {
-        company: { id: company_id }
-      },
+      
       relations: {
         user: true
       }
@@ -46,11 +44,28 @@ export class RoleService {
 
   // ENGMUHIM METOD: ID bo'yicha haqiqiy Role obyektini qidirib topish
   async findOne(id: number): Promise<Role> {
-    const company_id = this.cls.get<number>('company_id');
+    //const company_id = this.cls.get<number>('company_id');
     const role = await this.roleRepository.findOne({
       where: {
         id,
-        company: { id: company_id }
+       
+      },
+      relations:{
+        user:true
+      }
+    });
+    if (!role) {
+      throw new NotFoundException(`ID: ${id} bo'lgan rol tizimda topilmadi!`);
+    }
+    return role; // Haqiqiy Role obyektini qaytaradi
+  }
+
+  async findOneCompany(id: number,company_id:number): Promise<Role> {
+   
+    const role = await this.roleRepository.findOne({
+      where: {
+        id,
+        
       },
       relations:{
         user:true

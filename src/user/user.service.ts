@@ -32,37 +32,39 @@ export class UserService {
   ) { }
 
   async create(createUserDto: CreateUserDto) {
-    const checkUser = await this.userRepository.findOne({
-      where: { email: createUserDto.email },
-    });
-    if (checkUser) throw new ConflictException("User already exists");
+  const checkUser = await this.userRepository.findOne({
+    where: { email: createUserDto.email },
+  });
+  if (checkUser) throw new ConflictException("User already exists");
 
-    const { role_id, company_id, ...rest } = createUserDto;
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+  const { role_id, ...rest } = createUserDto;
 
-    const user = this.userRepository.create({
-      ...rest,
-      role:{id:role_id},
-      password: hashedPassword,
-    });
+  const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    // if (role_id) {
-    //   user.role = await this.roleService.findOne(role_id);
-    // }
-    if (company_id) {
-      user.company = await this.companyService.findOne(company_id);
+  // 1. Dastlab role'ni qo'shmasdan foydalanuvchini yaratamiz
+  const user = this.userRepository.create({
+    ...rest,
+    password: hashedPassword,
+  });
+
+  // 2. Agar role_id kelgan bo'lsa, rolni tekshirib keyin biriktiramiz
+  if (role_id) {
+    const foundRole = await this.roleService.findOne(role_id);
+    if (!foundRole) {
+      throw new NotFoundException("Role not found"); // Rol topilmasa xato qaytarish yaxshi amaliyot
     }
-
-    await this.userRepository.save(user);
-    return user;
+    user.role = foundRole;
   }
 
+  await this.userRepository.save(user);
+  return user;
+}
+
+
   async findAll() {
-    const company_id = this.cls.get<number>('company_id');
+    //const company_id = this.cls.get<number>('company_id');
     return this.userRepository.find({
-      where: {
-        company: { id: company_id }
-      },
+      
       relations: {
         role: true
       }
@@ -71,7 +73,7 @@ export class UserService {
 
   async findAllPagSearch(page: number, limit: number, search?: string) {
 
-    const company_id = this.cls.get<number>('company_id');
+    //const company_id = this.cls.get<number>('company_id');
 
 
     page = page > 0 ? page : 1;
@@ -89,9 +91,9 @@ export class UserService {
     // .leftJoinAndSelect('items.product', 'product')
     // .leftJoinAndSelect('sale.customer', 'customer');
 
-    if(company_id){
-      query.where('user.company_id = :company_id', { company_id: company_id });
-    }
+    // if(company_id){
+    //   query.where('user.company_id = :company_id', { company_id: company_id });
+    // }
 
 
     if (search) {
@@ -120,11 +122,11 @@ export class UserService {
 
 
   async findOne(id: number) {
-    const company_id = this.cls.get<number>('company_id');
+    //const company_id = this.cls.get<number>('company_id');
     const checkUser = await this.userRepository.findOne(
       {
         where: { id: id,
-          company:{id:company_id}
+          
          },
         // relations: [
 
@@ -188,7 +190,7 @@ export class UserService {
       where:{
         email: loginDto.email,
       },
-      relations:{company:true}
+      //relations:{company:true}
     });
 
     if (!user) throw new NotFoundException("User not found");
@@ -203,7 +205,7 @@ export class UserService {
       username: user.username,
       email: user.email,
       tokenType: 'access',
-      company_id: user.company.id
+      //company_id: user.company.id
     };
     const accessToken = this.jwtService.sign(accessTokenPayload, {
       expiresIn: '15d',
@@ -215,7 +217,7 @@ export class UserService {
       username: user.username,
       email: user.email,
       tokenType: 'refresh',
-      company_id: user.company.id
+      //company_id: user.company.id
     };
     const refreshToken = this.jwtService.sign(refreshTokenPayload, {
       expiresIn: '30d',
@@ -259,7 +261,7 @@ export class UserService {
         username: tokenVerify.username,
         email: tokenVerify.email,
         tokenType: tokenVerify.tokenType,
-        company_id: tokenVerify.company_id
+        //company_id: tokenVerify.company_id
       };
     } catch {
       throw new UnauthorizedException('Invalid or expired token');
@@ -284,7 +286,7 @@ export class UserService {
         username: refreshTokenVerify.username,
         email: refreshTokenVerify.email,
         tokenType: 'access',
-        company_id: refreshTokenVerify.company_id
+        //company_id: refreshTokenVerify.company_id
       };
       const accessToken = this.jwtService.sign(accessTokenPayload, {
         expiresIn: '15d',
@@ -322,7 +324,7 @@ export interface JwtPayload {
   username: string;
   email: string;
   tokenType: string;
-  company_id: number;
+  //company_id: number;
   // iat, exp optional
   iat?: number;
   exp?: number;

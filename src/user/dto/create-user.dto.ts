@@ -7,6 +7,4 @@ export class CreateUserDto {
 
     role_id:number;
 
-    @IsNumber()
-    company_id:number;
 }

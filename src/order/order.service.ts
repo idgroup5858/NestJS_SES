@@ -14,6 +14,8 @@ import { District } from 'src/region/entities/district.entity';
 import { Patient } from 'src/patient/entities/patient.entity';
 import { AnalysisService } from 'src/analysis/analysis.service';
 import { LaboratoryService } from 'src/laboratory/laboratory.service';
+import { CompanyService } from 'src/company/company.service';
+import { ClsService } from 'nestjs-cls';
 
 @Injectable()
 export class OrderService {
@@ -31,11 +33,18 @@ export class OrderService {
     // private readonly analysisService: AnalysisService,
     // private readonly laboratoryService: LaboratoryService
 
+    private companyService: CompanyService,
+
+    readonly cls: ClsService,
+
 
   ) { }
 
   async create(dto: CreateOrderDto): Promise<Order> {
 
+    const company_id = this.cls.get<number>('company_id');
+    console.log("order create company_id");
+    console.log(company_id);
 
     const owner = await this.userService.findOne(dto.owner_id);
 
@@ -58,13 +67,15 @@ export class OrderService {
       discountAmount = (totalAmount * dto.discount_percent) / 100;
     }
 
+
+
     // 3. Yakuniy to'lanishi kerak bo'lgan summani hisoblaymiz
     const finalAmount = totalAmount - discountAmount;
 
     // 4. Asosiy Order obyektini yaratamiz
     const order = this.orderRepository.create({
       order_type: dto.order_type,
-      name:dto.name,
+      name: dto.name,
       status: 'pending',
       payment_status: 'pending',
       payment_method: dto.payment_method,
@@ -82,6 +93,12 @@ export class OrderService {
       patient: patient,
     });
 
+    if (company_id) {
+      const company = await this.companyService.findOne(company_id)
+      if (!company) throw new NotFoundException("Company not found");
+      order.company = company;
+    }
+
 
     // 5. DTO ichidagi items ro'yxatini OrderItem entitylariga o'giramiz
     order.items = dto.items.map(itemDto => {
@@ -97,9 +114,11 @@ export class OrderService {
   }
 
 
-  async updateItemStatus(itemId: number, status: string): Promise<OrderItem> {
+  async updateItemStatus(item_id: number, status: string): Promise<OrderItem> {
+    console.log("this is");
+    
     const item = await this.orderItemRepository.findOne({
-      where: { id: itemId },
+      where: { id: item_id },
       relations: {
         order: {
           items: true,
@@ -108,7 +127,7 @@ export class OrderService {
     });
 
     if (!item) {
-      throw new NotFoundException(`OrderItem #${itemId} topilmadi`);
+      throw new NotFoundException(`OrderItem #${item_id} topilmadi`);
     }
 
     item.status = status;
@@ -123,11 +142,21 @@ export class OrderService {
   // ================================
   // ORDER statusini qo'lda yangilash
   // ================================
-  async updateOrderStatus(orderId: number, status: string): Promise<Order> {
-    const order = await this.orderRepository.findOne({ where: { id: orderId } });
+  async updateOrderStatus(order_id: number, status: string): Promise<Order> {
+
+    const company_id = this.cls.get<number>('company_id');
+    console.log("order create company_id");
+    console.log(company_id);
+
+    const order = await this.orderRepository.findOne({
+      where: {
+        id: order_id,
+        company: { id: company_id }
+      }
+    });
 
     if (!order) {
-      throw new NotFoundException(`Order #${orderId} topilmadi`);
+      throw new NotFoundException(`Order #${order_id} topilmadi`);
     }
 
     order.status = status;
@@ -137,11 +166,11 @@ export class OrderService {
   // ================================
   // TO'LOV statusini yangilash
   // ================================
-  async updatePaymentStatus(orderId: number, status: string): Promise<Order> {
-    const order = await this.orderRepository.findOne({ where: { id: orderId } });
+  async updatePaymentStatus(order_id: number, status: string): Promise<Order> {
+    const order = await this.findOne(order_id)
 
     if (!order) {
-      throw new NotFoundException(`Order #${orderId} topilmadi`);
+      throw new NotFoundException(`Order #${order_id} topilmadi`);
     }
 
     order.payment_status = status;
@@ -151,16 +180,11 @@ export class OrderService {
   // ================================
   // Yordamchi: barcha item statuslariga qarab Order statusini avtomatik hisoblash
   // ================================
-  async recalculateOrderStatus(orderId: number) {
-    const order = await this.orderRepository.findOne({
-      where: { id: orderId },
-      relations: {
-        items: true,
-      },
-    });
+  async recalculateOrderStatus(order_id: number) {
+    const order = await this.findOne(order_id);
 
     if (!order) {
-      throw new NotFoundException(`Order #${orderId} topilmadi`);
+      throw new NotFoundException(`Order #${order_id} topilmadi`);
     }
 
     const items = order.items;
@@ -179,7 +203,12 @@ export class OrderService {
   }
 
   async findAll() {
+    const company_id = this.cls.get<number>('company_id');
+    console.log("order findall company_id");
+    console.log(company_id);
+    
     return this.orderRepository.find({
+      where:{company:{id:company_id}},
       relations: {
         items: {
           analysis: true,
@@ -201,6 +230,9 @@ export class OrderService {
     search?: string,
     status?: string,
   ) {
+
+     const company_id = this.cls.get<number>('company_id');
+
     page = page > 0 ? page : 1;
     limit = limit > 0 ? limit : 10;
 
@@ -225,6 +257,10 @@ export class OrderService {
     // Status bo'yicha filtr
     if (status) {
       query.andWhere('order.status = :status', { status });
+    }
+
+    if (company_id) {
+      query.where('order.company_id = :company_id', { company_id: company_id });
     }
 
     const [data, total] = await query
@@ -309,6 +345,8 @@ export class OrderService {
     status?: string,
     laboratory_id?: number
   ) {
+
+    const company_id = this.cls.get<number>('company_id');
     // Sahifalash qiymatlarini tekshirish va default o'rnatish
     const currentPage = page > 0 ? Number(page) : 1;
     const currentLimit = limit > 0 ? Number(limit) : 10;
@@ -341,6 +379,10 @@ export class OrderService {
       query.andWhere('order.status = :status', { status });
     }
 
+    if (company_id) {
+      query.where('order.company_id = :company_id', { company_id: company_id });
+    }
+
     // Tartiblash, sahifalash va natijani olish (.offset va .limit xatolikni oldini oladi)
     const [data, total] = await query
       .orderBy('order.createdAt', 'DESC')
@@ -362,8 +404,14 @@ export class OrderService {
 
 
   async findOne(id: number) {
+    const company_id = this.cls.get<number>('company_id');
+    console.log("order findOne company_id");
+    console.log(company_id);
+
     const order = await this.orderRepository.findOne({
-      where: { id },
+      where: { id,
+        company:{id:company_id}
+       },
       relations: {
         items: {
           analysis: true,
@@ -372,9 +420,9 @@ export class OrderService {
         owner: true,
         patient: true,
         district: true,
-        result:{
-          lab_director:true,
-          result_item:true
+        result: {
+          lab_director: true,
+          result_item: true
         }
       },
     });
@@ -385,12 +433,7 @@ export class OrderService {
   }
 
   async update(id: number, dto: UpdateOrderDto): Promise<Order> {
-    const order = await this.orderRepository.findOne({
-      where: { id },
-      relations: {
-        items: true,
-      },
-    });
+    const order = await this.findOne(id)
 
     if (!order) {
       throw new NotFoundException(`Order #${id} topilmadi`);
@@ -408,10 +451,10 @@ export class OrderService {
     if (dto.owner_id !== undefined) {
       order.owner = await this.userService.findOne(dto.owner_id);
     }
-    if (dto.district_id!== undefined) {
+    if (dto.district_id !== undefined) {
       order.district = dto.district_id ? await this.districtService.findOneDistrict(dto.district_id) : null;
     }
-     if (dto.patient_id!== undefined) {
+    if (dto.patient_id !== undefined) {
       order.patient = dto.patient_id ? await this.patientService.findOne(dto.patient_id) : null;
     }
 
@@ -446,7 +489,7 @@ export class OrderService {
   }
 
   async remove(id: number) {
-    const order = await this.orderRepository.findOne({ where: { id } });
+    const order = await this.findOne(id)
 
     if (!order) {
       throw new NotFoundException(`Order #${id} topilmadi`);

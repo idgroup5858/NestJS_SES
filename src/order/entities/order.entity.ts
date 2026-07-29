@@ -6,6 +6,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Pri
 import { OrderItem } from "./order_item.entity";
 import { District } from "src/region/entities/district.entity";
 import { Result } from "src/result/entities/result.entity";
+import { Company } from "src/company/entities/company.entity";
 
 
 @Entity()
@@ -53,6 +54,12 @@ export class Order {
     @ManyToOne(() => District, { nullable: true })
     @JoinColumn({ name: "district_id" })
     district: District|null;
+
+
+
+    @ManyToOne(() => Company)
+    @JoinColumn({ name: "company_id" })
+    company: Company;
 
 
     @ManyToOne(() => User)

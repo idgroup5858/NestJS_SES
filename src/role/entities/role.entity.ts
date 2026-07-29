@@ -14,9 +14,9 @@ export class Role {
     @Column({ nullable: true })
     description: string; // Rol haqida qisqacha ma'lumot
 
-    // @ManyToOne(() => Company)
-    // @JoinColumn({ name: "company_id" })
-    // company: Company;
+    @ManyToOne(() => Company)
+    @JoinColumn({ name: "company_id" })
+    company: Company;
 
     @CreateDateColumn()
     createdAt: Date;

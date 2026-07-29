@@ -32,48 +32,55 @@ export class UserService {
   ) { }
 
   async create(createUserDto: CreateUserDto) {
-  const checkUser = await this.userRepository.findOne({
-    where: { email: createUserDto.email },
-  });
-  if (checkUser) throw new ConflictException("User already exists");
+    const checkUser = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+    if (checkUser) throw new ConflictException("User already exists");
 
-  const { role_id, ...rest } = createUserDto;
+    const { role_id, company_id, ...rest } = createUserDto;
 
-  const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-  // 1. Dastlab role'ni qo'shmasdan foydalanuvchini yaratamiz
-  const user = this.userRepository.create({
-    ...rest,
-    password: hashedPassword,
-  });
+    // 1. Dastlab role'ni qo'shmasdan foydalanuvchini yaratamiz
+    const user = this.userRepository.create({
+      ...rest,
+      password: hashedPassword,
+    });
 
-  // 2. Agar role_id kelgan bo'lsa, rolni tekshirib keyin biriktiramiz
-  if (role_id) {
-    const foundRole = await this.roleService.findOne(role_id);
-    if (!foundRole) {
-      throw new NotFoundException("Role not found"); // Rol topilmasa xato qaytarish yaxshi amaliyot
+    if (company_id) {
+      const company = await this.companyService.findOne(company_id)
+      if (!company) throw new NotFoundException("Company not found");
+      user.company = company
     }
-    user.role = foundRole;
-  }
 
-  await this.userRepository.save(user);
-  return user;
-}
+    //2. Agar role_id kelgan bo'lsa, rolni tekshirib keyin biriktiramiz
+    if (role_id) {
+      const foundRole = await this.roleService.findOneCompany(role_id,company_id);
+      if (!foundRole) {
+        throw new NotFoundException("Role not found"); // Rol topilmasa xato qaytarish yaxshi amaliyot
+      }
+      user.role = foundRole;
+    }
+
+    await this.userRepository.save(user);
+    return user;
+  }
 
 
   async findAll() {
-    //const company_id = this.cls.get<number>('company_id');
+    const company_id = this.cls.get<number>('company_id');
     return this.userRepository.find({
-      
+      where:{company:{id:company_id}},
       relations: {
-        role: true
+        role: true,
+        company:true
       }
     });
   }
 
   async findAllPagSearch(page: number, limit: number, search?: string) {
 
-    //const company_id = this.cls.get<number>('company_id');
+    const company_id = this.cls.get<number>('company_id');
 
 
     page = page > 0 ? page : 1;
@@ -91,9 +98,9 @@ export class UserService {
     // .leftJoinAndSelect('items.product', 'product')
     // .leftJoinAndSelect('sale.customer', 'customer');
 
-    // if(company_id){
-    //   query.where('user.company_id = :company_id', { company_id: company_id });
-    // }
+    if(company_id){
+      query.where('user.company_id = :company_id', { company_id: company_id });
+    }
 
 
     if (search) {
@@ -122,12 +129,15 @@ export class UserService {
 
 
   async findOne(id: number) {
-    //const company_id = this.cls.get<number>('company_id');
+    const company_id = this.cls.get<number>('company_id');
+    console.log("user findOne company_id");
+    console.log(company_id);
     const checkUser = await this.userRepository.findOne(
       {
-        where: { id: id,
-          
-         },
+        where: {
+          id: id,
+          company:{id:company_id}
+        },
         // relations: [
 
         //   'userSubjects',          // 1. Ustozning hamma fan birikmalarini oladi
@@ -143,8 +153,11 @@ export class UserService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
+    const company_id = this.cls.get<number>('company_id');
+    console.log("user update company_id");
+    console.log(company_id);
+
     const checkUser = await this.findOne(id);
-   
 
     const { role_id, password, ...rest } = updateUserDto;
 
@@ -160,9 +173,12 @@ export class UserService {
 
     if (!user) throw new NotFoundException();
 
-    if (role_id !== undefined) {
-      const role = await this.roleService.findOne(role_id)
-      user.role = role
+    if (role_id) {
+      const foundRole = await this.roleService.findOneCompany(role_id,company_id);
+      if (!foundRole) {
+        throw new NotFoundException("Role not found"); // Rol topilmasa xato qaytarish yaxshi amaliyot
+      }
+      user.role = foundRole;
     }
 
     return this.userRepository.save(user);
@@ -173,7 +189,7 @@ export class UserService {
 
 
   async remove(id: number) {
-     const checkUser = await this.findOne(id);
+    const checkUser = await this.findOne(id);
     await this.userRepository.remove(checkUser);
     return { message: "User deleted" };
   }
@@ -187,10 +203,10 @@ export class UserService {
   async login(loginDto: LoginDto) {
 
     const user = await this.userRepository.findOne({
-      where:{
+      where: {
         email: loginDto.email,
       },
-      //relations:{company:true}
+      relations:{company:true}
     });
 
     if (!user) throw new NotFoundException("User not found");
@@ -205,7 +221,7 @@ export class UserService {
       username: user.username,
       email: user.email,
       tokenType: 'access',
-      //company_id: user.company.id
+      company_id: user.company.id
     };
     const accessToken = this.jwtService.sign(accessTokenPayload, {
       expiresIn: '15d',
@@ -217,7 +233,7 @@ export class UserService {
       username: user.username,
       email: user.email,
       tokenType: 'refresh',
-      //company_id: user.company.id
+      company_id: user.company.id
     };
     const refreshToken = this.jwtService.sign(refreshTokenPayload, {
       expiresIn: '30d',
@@ -261,7 +277,7 @@ export class UserService {
         username: tokenVerify.username,
         email: tokenVerify.email,
         tokenType: tokenVerify.tokenType,
-        //company_id: tokenVerify.company_id
+        company_id: tokenVerify.company_id
       };
     } catch {
       throw new UnauthorizedException('Invalid or expired token');
@@ -286,7 +302,7 @@ export class UserService {
         username: refreshTokenVerify.username,
         email: refreshTokenVerify.email,
         tokenType: 'access',
-        //company_id: refreshTokenVerify.company_id
+        company_id: refreshTokenVerify.company_id
       };
       const accessToken = this.jwtService.sign(accessTokenPayload, {
         expiresIn: '15d',
@@ -324,7 +340,7 @@ export interface JwtPayload {
   username: string;
   email: string;
   tokenType: string;
-  //company_id: number;
+  company_id: number;
   // iat, exp optional
   iat?: number;
   exp?: number;

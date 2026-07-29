@@ -8,28 +8,46 @@ import { Analysis } from 'src/analysis/entities/analysis.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { User } from 'src/user/entities/user.entity';
 import { UpdateResultDto } from './dto/update-result.dto';
+import { CompanyService } from 'src/company/company.service';
+import { ClsService } from 'nestjs-cls';
+import { LaboratoryService } from 'src/laboratory/laboratory.service';
+import { AnalysisService } from 'src/analysis/analysis.service';
 
 @Injectable()
 export class ResultService {
     constructor(
         @InjectRepository(Result)
         private readonly resultRepository: Repository<Result>,
-    ) {}
+        private companyService: CompanyService,
+        // private laboratoryService: LaboratoryService,
+        // private analysisService: AnalysisService,
+        readonly cls: ClsService,
+    ) { }
 
     // Yangi Result va uning Itemlarini birga saqlash
     async create(dto: CreateResultDto): Promise<Result> {
+
+        const company_id = this.cls.get<number>('company_id');
+        console.log("result create company_id");
+        console.log(company_id);
         // 1. Asosiy Result obektini repository.create orqali toza yaratamiz (new Result yo'qotildi)
         const result = this.resultRepository.create({
             order: { id: dto.order_id } as Order,
-            lab_director:{id:dto.lab_director_id}as User
+            lab_director: { id: dto.lab_director_id } as User
         });
+
+        if (company_id) {
+            const company = await this.companyService.findOne(company_id)
+            if (!company) throw new NotFoundException("Company not found");
+            result.company = company;
+        }
 
         // 2. Siz so'ragan qism: itemlarni map orqali new ResultItem qilib yuklaymiz
         result.result_item = dto.result_item.map(itemDto => {
             const item = new ResultItem();
-            
+
             item.analysis = { id: itemDto.analysis_id } as Analysis;
-            
+
             item.name = itemDto.name;
             item.have_or_not = itemDto.have_or_not;
             item.unit = itemDto.unit;
@@ -37,7 +55,7 @@ export class ResultService {
             item.min = itemDto.min;
             item.max = itemDto.max;
             item.standard = itemDto.standard;
-            
+
             item.have_or_notValue = itemDto.have_or_notValue;
             item.unitValue = itemDto.unitValue;
             item.normValue = itemDto.normValue;
@@ -54,7 +72,11 @@ export class ResultService {
 
     // Barcha natijalarni bog'liqliklari bilan olish
     async findAll(): Promise<Result[]> {
+        const company_id = this.cls.get<number>('company_id');
+        console.log("result findall company_id");
+        console.log(company_id);
         return await this.resultRepository.find({
+            where: { company: { id: company_id } },
             relations: {
                 order: true,
                 result_item: {
@@ -66,8 +88,14 @@ export class ResultService {
 
     // ID bo'yicha olish
     async findOne(id: number): Promise<Result> {
+        const company_id = this.cls.get<number>('company_id');
+        console.log("result findOne company_id");
+        console.log(company_id);
         const result = await this.resultRepository.findOne({
-            where: { id },
+            where: {
+                id,
+                company: { id: company_id }
+            },
             relations: {
                 order: true,
                 result_item: {
@@ -75,14 +103,14 @@ export class ResultService {
                 },
             },
         });
-        
+
         if (!result) {
             throw new NotFoundException(`ID: ${id} bo'lgan natija topilmadi`);
         }
         return result;
     }
 
-           async update(id: number, dto: UpdateResultDto): Promise<Result> {
+    async update(id: number, dto: UpdateResultDto): Promise<Result> {
         // 1. Avval eski Resultni bazadan topamiz
         const result = await this.findOne(id);
 
@@ -98,7 +126,7 @@ export class ResultService {
         if (dto.result_item) {
             result.result_item = dto.result_item.map(itemDto => {
                 const item = new ResultItem();
-                
+
                 // Bu yerda id berilmaydi, yangi obyekt bo'lib yaratiladi
                 item.analysis = { id: itemDto.analysis_id } as Analysis;
                 item.name = itemDto.name;
@@ -108,7 +136,7 @@ export class ResultService {
                 item.min = itemDto.min;
                 item.max = itemDto.max;
                 item.standard = itemDto.standard;
-                
+
                 item.have_or_notValue = itemDto.have_or_notValue;
                 item.unitValue = itemDto.unitValue;
                 item.normValue = itemDto.normValue;

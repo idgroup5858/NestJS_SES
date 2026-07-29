@@ -1,4 +1,5 @@
 import { Analysis } from "src/analysis/entities/analysis.entity";
+import { Company } from "src/company/entities/company.entity";
 import { User } from "src/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -15,6 +16,10 @@ export class Laboratory {
   createdAt: Date;
 
 
+  @ManyToOne(() => Company)
+  @JoinColumn({ name: "company_id" })
+  company: Company;
+
 
 
   @OneToMany(() => Analysis, analysis => analysis.laboratory)
@@ -27,7 +32,7 @@ export class Laboratory {
   lab_director: User;    // User|null 
 
 
-  @ManyToMany(() => User,{nullable:true,onDelete: "SET NULL"})
+  @ManyToMany(() => User, { nullable: true, onDelete: "SET NULL" })
   @JoinTable({
     name: "laboratory_assistants", // oraliq jadval nomi
     joinColumn: { name: "laboratory_id", referencedColumnName: "id" },

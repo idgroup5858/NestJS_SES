@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/user/entities/user.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity()
@@ -19,6 +20,10 @@ export class Company {
     
     @Column()
     address:string
+
+
+    @OneToMany(()=>User,user=>user.company)   
+    user:User[]
 
 
 

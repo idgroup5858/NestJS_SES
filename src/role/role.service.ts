@@ -39,6 +39,30 @@ export class RoleService {
     return await this.roleRepository.save(role);
   }
 
+  async createRoleWithCompany(createRoleDto: CreateRoleDto) {    
+
+    const {company_id,...rest}=createRoleDto
+
+    if (company_id) {
+      const company = await this.companyService.findOne(company_id)
+      if (!company) throw new NotFoundException("Company not found");
+     
+    }else{
+      throw new NotFoundException("Company not found");
+    }
+
+    const role = this.roleRepository.create({
+      ...rest
+    });
+
+    if (company_id) {
+      const company = await this.companyService.findOne(company_id)
+      if (!company) throw new NotFoundException("Company not found");
+      role.company = company
+    }
+    return await this.roleRepository.save(role);
+  }
+
   // Barcha rollarni olish
   async findAll() {
     const company_id = this.cls.get<number>('company_id');

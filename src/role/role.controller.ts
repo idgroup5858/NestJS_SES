@@ -15,6 +15,12 @@ export class RoleController {
     return this.roleService.create(createRoleDto);
   }
 
+  //@UseGuards(AuthGuard("jwt"))
+  @Post("addrolewithcompany")
+  createRoleWithCompany(@Body() createRoleDto: CreateRoleDto) {
+    return this.roleService.createRoleWithCompany(createRoleDto);
+  }
+
   @UseGuards(AuthGuard("jwt"))
   @Get("getall")
   findAll() {

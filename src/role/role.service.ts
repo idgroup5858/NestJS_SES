@@ -5,29 +5,37 @@ import { Role } from './entities/role.entity'; // O'zingizning entity yo'lingizn
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ClsService } from 'nestjs-cls';
+import { CompanyService } from 'src/company/company.service';
 
 @Injectable()
 export class RoleService {
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>, // Bazaga ulanish
-
+    private companyService: CompanyService,
     readonly cls: ClsService,
   ) { }
 
   // Yangi rol yaratish (Masalan: ADMIN, USER)
   async create(createRoleDto: CreateRoleDto) {
-    //const company_id = this.cls.get<number>('company_id');
+    const company_id = this.cls.get<number>('company_id');
+    console.log("role  create company_id");
+    console.log(company_id);
 
-    const checkRole = await this.roleRepository.findOne({
-      where: { name: createRoleDto.name }
-    });
-    if (checkRole) throw new ConflictException("Role already exists");
+    // const checkRole = await this.roleRepository.findOne({
+    //   where: { name: createRoleDto.name }
+    // });
+    // if (checkRole) throw new ConflictException("Role already exists");
 
     const role = this.roleRepository.create({
-      ...createRoleDto,
-      //company: { id: company_id }
+      ...createRoleDto
     });
+
+    if (company_id) {
+      const company = await this.companyService.findOne(company_id)
+      if (!company) throw new NotFoundException("Company not found");
+      role.company = company
+    }
     return await this.roleRepository.save(role);
   }
 
@@ -37,10 +45,10 @@ export class RoleService {
     console.log("role  findall company_id");
     console.log(company_id);
 
-    
-   
+
+
     return await this.roleRepository.find({
-      where: { company: {id:company_id} },
+      where: { company: { id: company_id } },
       relations: {
         company: true,
         user: true
@@ -48,21 +56,21 @@ export class RoleService {
 
     });
   }
-  
+
 
   // ENGMUHIM METOD: ID bo'yicha haqiqiy Role obyektini qidirib topish
   async findOne(id: number): Promise<Role> {
-    const company_id = this.cls.get<number>('company_id');    
+    const company_id = this.cls.get<number>('company_id');
     console.log("role  findOne company_id");
     console.log(company_id);
     const role = await this.roleRepository.findOne({
       where: {
         id,
-        company:{id:company_id}
+        company: { id: company_id }
       },
       relations: {
         user: true,
-        company:true
+        company: true
       }
     });
     if (!role) {

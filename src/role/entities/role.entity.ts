@@ -8,7 +8,7 @@ export class Role {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ unique: true })
+    @Column()
     name: string; // Masalan: 'admin', 'user'
 
     @Column({ nullable: true })

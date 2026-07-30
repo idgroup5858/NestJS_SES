@@ -8,7 +8,7 @@
         "src/app.controller.spec.ts": true,
         "src/user/user.controller.spec.ts": true,
         "src/user/user.service.spec.ts": true,
-        ".gitignore": false,
+        ".gitignore": true,
         ".prettierrc": true,
         "package-lock.json": true,
         "package.json": true,
@@ -37,7 +37,9 @@
         "src/result/result.controller.spec.ts": true,
         "src/result/result.service.spec.ts": true,
         "src/company/company.controller.spec.ts": true,
-        "src/company/company.service.spec.ts": true
+        "src/company/company.service.spec.ts": true,
+        "src/onlinestorage/onlinestorage.controller.spec.ts": true,
+        "src/onlinestorage/onlinestorage.service.spec.ts": true
     },
     "hide-files.files": [
         "src/app.controller.spec.ts",
@@ -72,6 +74,8 @@
         "src/result/result.controller.spec.ts",
         "src/result/result.service.spec.ts",
         "src/company/company.controller.spec.ts",
-        "src/company/company.service.spec.ts"
+        "src/company/company.service.spec.ts",
+        "src/onlinestorage/onlinestorage.controller.spec.ts",
+        "src/onlinestorage/onlinestorage.service.spec.ts"
     ]
 }

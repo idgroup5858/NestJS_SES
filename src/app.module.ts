@@ -14,6 +14,7 @@ import { PatternModule } from './pattern/pattern.module';
 import { ResultModule } from './result/result.module';
 import { ClsModule } from 'nestjs-cls';
 import { CompanyModule } from './company/company.module';
+import { OnlinestorageModule } from './onlinestorage/onlinestorage.module';
 
 @Module({
   imports: [UserModule,
@@ -34,7 +35,8 @@ import { CompanyModule } from './company/company.module';
     OrderModule,
     PatternModule,
     ResultModule,
-    CompanyModule
+    CompanyModule,
+    OnlinestorageModule
   ],
   controllers: [AppController],
   providers: [AppService],

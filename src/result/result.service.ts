@@ -86,6 +86,67 @@ export class ResultService {
         });
     }
 
+    async findAllPagSearch(page: number, limit: number, search?: string) {
+        const company_id = this.cls.get<number>('company_id');
+
+        // Sahifalash parametrlari validatsiyasi
+        page = page > 0 ? page : 1;
+        limit = limit > 0 ? limit : 10;
+        const skip = (page - 1) * limit;
+
+        // QueryBuilder yaratish
+        const query = this.resultRepository.createQueryBuilder('result')
+            .leftJoinAndSelect('result.order', 'order')
+            .leftJoinAndSelect('order.patient', 'patient')
+            .leftJoinAndSelect('result.result_item', 'result_item')
+
+        // O'z munosabatlaringizni qo'shing
+
+        // Kompaniya bo'yicha filter (Har doim birinchi shart sifatida tekshiriladi)
+        if (company_id) {
+            query.where('result.company_id = :company_id', { company_id });
+        }
+
+        // Patient ismi va familiyasi bo'yicha qidiruv
+        if (search) {
+            query.andWhere(
+                `(
+                patient.first_name ILIKE :search OR 
+                patient.last_name ILIKE :search OR
+                CONCAT(patient.first_name, ' ', patient.last_name) ILIKE :search
+            )`,
+                { search: `%${search}%` }
+            );
+        }
+
+        // Qidiruv sharti (andWhere ishlatiladi, aks holda yuqoridagi company_id o'chib ketadi)
+        // if (search) {
+        //     query.andWhere(
+        //         '(result.name ILIKE :search OR result.code ILIKE :search)', // Qidiriladigan maydonlar
+        //         { search: `%${search}%` }
+        //     );
+        // }
+
+        // Ma'lumotlarni olish va sanash
+        const [data, total] = await query
+            .orderBy('result.id', 'DESC')
+            .skip(skip)
+            .take(limit)
+            .getManyAndCount();
+
+        // Standart qaytish formati
+        return {
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+            data,
+        };
+    }
+
+
     // ID bo'yicha olish
     async findOne(id: number): Promise<Result> {
         const company_id = this.cls.get<number>('company_id');

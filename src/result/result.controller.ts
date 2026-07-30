@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ResultService } from './result.service';
 import { CreateResultDto } from './dto/create-result.dto';
 import { UpdateResultDto } from './dto/update-result.dto';
@@ -6,7 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('result')
 export class ResultController {
-  constructor(private readonly resultService: ResultService) {}
+  constructor(private readonly resultService: ResultService) { }
 
   @UseGuards(AuthGuard("jwt"))
   @Post("add")
@@ -18,6 +18,16 @@ export class ResultController {
   @Get("getall")
   findAll() {
     return this.resultService.findAll();
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Get("getfull")
+  findAllPagSearch(
+    @Query("page") page: string,
+    @Query("limit") limit: string,
+    @Query("search") search: string
+  ) {
+    return this.resultService.findAllPagSearch(+page, +limit, search);
   }
 
   @UseGuards(AuthGuard("jwt"))

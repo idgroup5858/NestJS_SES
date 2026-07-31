@@ -5,14 +5,14 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Company } from './entities/company.entity'; // Yo'lni tekshiring
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class CompanyService {
   constructor(
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
-  ) {}
+  ) { }
 
   // Yangi kompaniya yaratish
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
@@ -23,11 +23,11 @@ export class CompanyService {
   // Barcha kompaniyalarni olish
   async findAll(): Promise<Company[]> {
     return await this.companyRepository.find({
-      relations:{user:true}
+      relations: { user: true }
     });
   }
 
-    async findAllPagSearch(
+  async findAllPagSearch(
     page: number,
     limit: number,
     search?: string
@@ -40,7 +40,7 @@ export class CompanyService {
     // 2. QueryBuilder yaratamiz va kerakli munosabatlarni bog'laymiz
     const query = this.companyRepository.createQueryBuilder('company')
       // Agar kompaniyaga bog'langan boshqa jadvallar bo'lsa, shu yerda leftJoin qilinadi
-      .leftJoinAndSelect('company.user', 'user') 
+      .leftJoinAndSelect('company.user', 'user')
 
     // 3. Global qidiruv mantiqi (Nomi, Tavsifi yoki Manzili bo'yicha)
     if (search) {
@@ -77,10 +77,10 @@ export class CompanyService {
 
   // ID bo'yicha bitta kompaniyani topish
   async findOne(id: number): Promise<Company> {
-    const company = await this.companyRepository.findOne({ 
-      where: { id},
-      relations:{user:true}
-     });
+    const company = await this.companyRepository.findOne({
+      where: { id },
+      relations: { user: true }
+    });
     if (!company) {
       throw new NotFoundException(`ID: ${id} bo'lgan kompaniya topilmadi`);
     }
@@ -95,9 +95,19 @@ export class CompanyService {
   }
 
   // Kompaniyani o'chirish
-  async remove(id: number): Promise<{ message: string }> {
-    const company = await this.findOne(id);
-    await this.companyRepository.remove(company);
-    return { message: 'Kompaniya muvaffaqiyatli oʻchirildi' };
+  async remove(id: number) {
+    try {
+      const company = await this.findOne(id);
+      await this.companyRepository.remove(company);
+      return { message: 'Kompaniya muvaffaqiyatli oʻchirildi' };
+    } catch (error) {
+      // Ma'lumotlar bazasidagi foreign key taqiqi (RESTRICT) xatosini tutib olamiz
+      if (error.code === '23503') { // PostgreSQL uchun xato kodi (MySQL bo'lsa: 'ER_ROW_IS_REFERENCED_2')
+        throw new ConflictException("Bu kompaniyani o'chirib bo'lmaydi, chunki unga bog'langan foydalanuvchilar (userlar) bor!");
+      }
+
+      // Boshqa kutilmagan xatolar uchun
+      throw error;
+    }
   }
 }

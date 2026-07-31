@@ -32,7 +32,7 @@ export class Laboratory {
   lab_director: User;    // User|null 
 
 
-  @ManyToMany(() => User, { nullable: true, onDelete: "SET NULL" })
+  @ManyToMany(() => User, { nullable: true, onDelete: "CASCADE" })
   @JoinTable({
     name: "laboratory_assistants", // oraliq jadval nomi
     joinColumn: { name: "laboratory_id", referencedColumnName: "id" },

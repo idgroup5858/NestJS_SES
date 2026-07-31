@@ -14,7 +14,7 @@ export class Onlinestorage {
     @Column()
     text: string;
 
-    @ManyToOne(() => Analysis)
+    @ManyToOne(() => Analysis,{onDelete:"CASCADE"})
     @JoinColumn({ name: "analysis_id" })
     analysis: Analysis;
 

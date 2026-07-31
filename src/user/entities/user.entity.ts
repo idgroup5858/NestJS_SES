@@ -16,7 +16,7 @@ export class User {
     @Column()
     password:string;
 
-    @ManyToOne(()=>Company)
+    @ManyToOne(()=>Company,{onDelete:"RESTRICT"})
     @JoinColumn({name:"company_id"})
     company:Company;
 

@@ -27,5 +27,67 @@
 
 
 
+            url -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+            sudo apt install -y nodejs
+
+
+
+
+
+            sudo apt install git -y
+
+            sudo apt update
+            sudo apt install -y postgresql postgresql-contrib
+            sudo systemctl status postgresql
+            sudo systemctl start postgresql
+            sudo systemctl restart postgresql
+            sudo systemctl enable postgresql
+
+
+            YANGI USER OCHISH
+            sudo -u postgres psql
+
+            CREATE USER myuser WITH PASSWORD 'root';
+            CREATE DATABASE prses OWNER myuser;
+            GRANT ALL PRIVILEGES ON DATABASE prses TO myuser;
+            \q
+
+            PAROLNI OZGARTIRISH
+            sudo -u postgres psql
+            ALTER USER postgres WITH PASSWORD 'root';
+            CREATE DATABASE prses OWNER postgres;
+            sudo -u postgres psql -l
+
+            \q
+
+            
+
+
+            DBeaverga ochish
+
+            sudo -u postgres psql -c "SHOW config_file;"
+            sudo nano /etc/postgresql/*/main/postgresql.conf
+            listen_addresses = '*'
+
+
+            sudo nano /etc/postgresql/*/main/pg_hba.conf
+            host    all             all             0.0.0.0/0               md5
+            host    all             all             SIZNING_IP/32           md5
+
+            Ctrl+O → Enter, Ctrl+X
+
+            sudo systemctl restart postgresql
+
+
+
+
+
+            npm install
+            npm run build
+            sudo npm install -g pm2
+            pm2 start dist/main.js --name nest-app
+
+
+
 
 

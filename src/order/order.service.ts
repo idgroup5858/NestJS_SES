@@ -447,6 +447,8 @@ export class OrderService {
     if (dto.street !== undefined) order.street = dto.street;
     if (dto.village !== undefined) order.village = dto.village;
     if (dto.description !== undefined) order.description = dto.description;
+    if (dto.payment_sms !== undefined) order.payment_sms = dto.payment_sms;
+    if (dto.completed_sms !== undefined) order.completed_sms = dto.completed_sms;
 
     // Relation maydonlarni yangilaymiz
     if (dto.owner_id !== undefined) {

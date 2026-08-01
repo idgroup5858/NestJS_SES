@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsArray, ValidateNested, IsIn } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsArray, ValidateNested, IsIn, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateOrderItemDto } from './order-item.dto';
 
@@ -15,6 +15,14 @@ export class CreateOrderDto {
     @IsOptional()
     @IsString()
     payment_method?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    payment_sms?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    completed_sms?: boolean;
 
     @IsOptional()
     @IsNumber()

@@ -29,11 +29,11 @@ export class Order {
     payment_status: string; // 'pending', 'paid', 'refunded'
 
     @Column({ nullable:true,default:false})
-    payment_sms: boolean; // 'pending', 'paid', 'refunded'
+    payment_sms: boolean; 
 
     @Column({ nullable:true,default:false})
-    completed_sms: boolean; // 'pending', 'paid', 'refunded'
-
+    completed_sms: boolean; 
+    
     // To'lov turi
     @Column({ nullable: true })
     payment_method: string; // 'cash' (naqd), 'card' (plastik), 'click' va h.k.

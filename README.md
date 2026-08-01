@@ -65,16 +65,22 @@
 
             DBeaverga ochish
 
+            1
+
             sudo -u postgres psql -c "SHOW config_file;"
-            sudo nano /etc/postgresql/*/main/postgresql.conf
+            sudo nano /etc/postgresql/18/main/postgresql.conf
+            Ctrl+F #listen_addresses = 'localhost'
             listen_addresses = '*'
 
-
-            sudo nano /etc/postgresql/*/main/pg_hba.conf
+            2
+            sudo nano /etc/postgresql/18/main/pg_hba.conf
             host    all             all             0.0.0.0/0               md5
             host    all             all             SIZNING_IP/32           md5
 
             Ctrl+O → Enter, Ctrl+X
+
+            3
+            sudo ufw allow 5432/tcp
 
             sudo systemctl restart postgresql
 

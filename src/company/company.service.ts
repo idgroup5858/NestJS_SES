@@ -88,7 +88,7 @@ export class CompanyService {
   }
 
   // Kompaniyani yangilash
-  async update(id: number, updateCompanyDto: UpdateCompanyDto): Promise<Company> {
+  async update(id: number, updateCompanyDto: UpdateCompanyDto) {
     const company = await this.findOne(id);
     const updatedCompany = this.companyRepository.merge(company, updateCompanyDto);
     return await this.companyRepository.save(updatedCompany);

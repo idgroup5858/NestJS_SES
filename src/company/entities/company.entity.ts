@@ -11,19 +11,25 @@ export class Company {
 
 
     @Column()
-    name:string
+    name: string
 
-    
+
     @Column()
-    description:string
+    description: string
 
-    
+
     @Column()
-    address:string
+    address: string
+
+    @Column({nullable:true})
+    phone: string
+
+    @Column({default:true})
+    active: boolean
 
 
-    @OneToMany(()=>User,user=>user.company)   
-    user:User[]
+    @OneToMany(() => User, user => user.company)
+    user: User[]
 
 
 

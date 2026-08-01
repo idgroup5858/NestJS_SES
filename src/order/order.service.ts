@@ -95,6 +95,7 @@ export class OrderService {
 
     if (company_id) {
       const company = await this.companyService.findOne(company_id)
+      if (!company.active) throw new NotFoundException("Company not active");
       if (!company) throw new NotFoundException("Company not found");
       order.company = company;
     }

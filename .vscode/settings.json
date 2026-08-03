@@ -12,7 +12,7 @@
         ".prettierrc": true,
         "package-lock.json": true,
         "package.json": true,
-        "README.md": true,
+        "README.md": false,
         "tsconfig.build.json": true,
         "tsconfig.json": true,
         "nest-cli.json": true,

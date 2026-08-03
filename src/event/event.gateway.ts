@@ -12,7 +12,7 @@ import { EventService } from './event.service';
 import { User } from 'src/user/entities/user.entity';
 
 // cors: '*' - har qanday frontend portidan ulanishga ruxsat beradi
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway(3001, {  cors: { origin: '*' } })
 export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     constructor(

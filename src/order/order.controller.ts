@@ -69,6 +69,11 @@ export class OrderController {
     return this.orderService.findOne(id);
   }
 
+  @Get('getbytwo/:id')
+  findOneWithOutToken(@Param('id', ParseIntPipe) id: number) {
+    return this.orderService.findOneWithOutToken(id);
+  }
+
   // ================================
   // Order'ni to'liq/qisman yangilash (manzil, items va h.k.)
   // PATCH /order/5

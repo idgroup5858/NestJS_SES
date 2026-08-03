@@ -36,6 +36,12 @@ export class OnlinestorageController {
     return this.onlinestorageService.findOne(+id);
   }
 
+  
+  @Get('getbytwo/:id')
+  findOneWithOutToken(@Param('id') id: string) {
+    return this.onlinestorageService.findOneWithOutToken(+id);
+  }
+
   @UseGuards(AuthGuard("jwt"))
   @Patch('update/:id')
   update(@Param('id') id: string, @Body() updateOnlinestorageDto: UpdateOnlinestorageDto) {

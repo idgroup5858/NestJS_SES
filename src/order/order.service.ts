@@ -433,6 +433,30 @@ export class OrderService {
     return order;
   }
 
+  async findOneWithOutToken(id: number) {
+    
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: {
+        items: {
+          analysis: true,
+          laboratory: true,
+        },
+        owner: true,
+        patient: true,
+        district: true,
+        result: {
+          lab_director: true,
+          result_item: true
+        }
+      },
+    });
+    if (!order) {
+      throw new NotFoundException(`Order #${id} topilmadi`);
+    }
+    return order;
+  }
+
   async update(id: number, dto: UpdateOrderDto): Promise<Order> {
     const order = await this.findOne(id)
 
@@ -449,6 +473,7 @@ export class OrderService {
     if (dto.description !== undefined) order.description = dto.description;
     if (dto.payment_sms !== undefined) order.payment_sms = dto.payment_sms;
     if (dto.completed_sms !== undefined) order.completed_sms = dto.completed_sms;
+    if (dto.result_link_sms !== undefined) order.result_link_sms = dto.result_link_sms;
 
     // Relation maydonlarni yangilaymiz
     if (dto.owner_id !== undefined) {

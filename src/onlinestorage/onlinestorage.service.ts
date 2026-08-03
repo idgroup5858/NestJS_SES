@@ -133,6 +133,21 @@ export class OnlinestorageService {
     return onlinestorage;
   }
 
+  async findOneWithOutToken(id: number): Promise<Onlinestorage> {
+    
+    const onlinestorage = await this.onlinestorageRepository.findOne({
+      where: { id },
+      relations: {
+        // foreignEntity: true // Bog'langan ob'ektni qo'shib yuklaydi
+      },
+    });
+
+    if (!onlinestorage) {
+      throw new NotFoundException(`IDsi ${id} bo'lgan onlinestorage topilmadi.`);
+    }
+    return onlinestorage;
+  }
+
   // 4. Onlinestorage'ni yangilash (Relation ob'ekt bilan)
   async update(id: number, updateOnlinestorageDto: UpdateOnlinestorageDto) {
     // Avval ushbu IDli ma'lumot borligini tekshiramiz

@@ -36,6 +36,11 @@ export class ResultController {
     return this.resultService.findOne(+id);
   }
 
+  @Get('getbytwo/:id')
+  findOneWithOutToken(@Param('id') id: string) {
+    return this.resultService.findOneWithOutToken(+id);
+  }
+
   @UseGuards(AuthGuard("jwt"))
   @Patch('update/:id')
   update(@Param('id') id: string, @Body() updateResultDto: UpdateResultDto) {

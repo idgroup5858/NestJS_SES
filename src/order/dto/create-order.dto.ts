@@ -25,6 +25,10 @@ export class CreateOrderDto {
     completed_sms?: boolean;
 
     @IsOptional()
+    @IsString()
+    result_link_sms?: string; 
+
+    @IsOptional()
     @IsNumber()
     discount_percent?: number;
     

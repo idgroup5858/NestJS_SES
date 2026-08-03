@@ -33,6 +33,11 @@ export class Order {
 
     @Column({ nullable:true,default:false})
     completed_sms: boolean; 
+
+
+    @Column({ nullable:true})
+    result_link_sms: string; 
+    
     
     // To'lov turi
     @Column({ nullable: true })

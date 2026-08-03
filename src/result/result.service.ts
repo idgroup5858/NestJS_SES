@@ -171,6 +171,26 @@ export class ResultService {
         return result;
     }
 
+    async findOneWithOutToken(id: number): Promise<Result> {
+       
+        const result = await this.resultRepository.findOne({
+            where: {
+                id
+            },
+            relations: {
+                order: true,
+                result_item: {
+                    analysis: true,
+                },
+            },
+        });
+
+        if (!result) {
+            throw new NotFoundException(`ID: ${id} bo'lgan natija topilmadi`);
+        }
+        return result;
+    }
+
     async update(id: number, dto: UpdateResultDto): Promise<Result> {
         // 1. Avval eski Resultni bazadan topamiz
         const result = await this.findOne(id);

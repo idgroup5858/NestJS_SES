@@ -152,6 +152,27 @@ export class UserService {
     return checkUser;
   }
 
+
+  async findOneForSocket(id: number) {
+   
+    const checkUser = await this.userRepository.findOne(
+      {
+        where: { id: id },
+        // relations: [
+
+        //   'userSubjects',          // 1. Ustozning hamma fan birikmalarini oladi
+        //   'userSubjects.subject',  // 2. Shu birikmaga tegishli fanning nomini oladi
+        //   'userSubjects.classes',  // 3. Shu fanning ichidagi barcha sinflarni oladi
+        //   'classs',                 // 4. Ustoz sinf rahbari bo'lgan sinflar ro'yxati (eski bog'lanish)
+        //   'subjects',
+        // ],
+      });
+    if (!checkUser) throw new NotFoundException("User not found");
+
+    return checkUser;
+  }
+
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     const company_id = this.cls.get<number>('company_id');
     console.log("user update company_id");

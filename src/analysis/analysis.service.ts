@@ -135,6 +135,23 @@ export class AnalysisService {
     return analysis;
   }
 
+  async findOneWithOutToken(id: number) {
+
+  
+    const analysis = await this.analysisRepository.findOne({
+      where: {
+        id: id },
+      relations: {
+        laboratory: true,
+        pattern: true
+      }
+    });
+    if (!analysis) {
+      throw new NotFoundException(`ID: ${id} bo'lgan tahlil topilmadi!`);
+    }
+    return analysis;
+  }
+
   // 4. Tahlil ma'lumotlarini yangilash
   async update(id: number, updateAnalysisDto: UpdateAnalysisDto) {
     await this.findOne(id)

@@ -8,11 +8,11 @@
         "src/app.controller.spec.ts": true,
         "src/user/user.controller.spec.ts": true,
         "src/user/user.service.spec.ts": true,
-        ".gitignore": false,
+        ".gitignore": true,
         ".prettierrc": true,
         "package-lock.json": true,
         "package.json": true,
-        "README.md": false,
+        "README.md": true,
         "tsconfig.build.json": true,
         "tsconfig.json": true,
         "nest-cli.json": true,
@@ -39,7 +39,10 @@
         "src/company/company.controller.spec.ts": true,
         "src/company/company.service.spec.ts": true,
         "src/onlinestorage/onlinestorage.controller.spec.ts": true,
-        "src/onlinestorage/onlinestorage.service.spec.ts": true
+        "src/onlinestorage/onlinestorage.service.spec.ts": true,
+        "src/event/event.service.spec.ts": true,
+        "src/globalstorage/globalstorage.controller.spec.ts": true,
+        "src/globalstorage/globalstorage.service.spec.ts": true
     },
     "hide-files.files": [
         "src/app.controller.spec.ts",
@@ -76,6 +79,9 @@
         "src/company/company.controller.spec.ts",
         "src/company/company.service.spec.ts",
         "src/onlinestorage/onlinestorage.controller.spec.ts",
-        "src/onlinestorage/onlinestorage.service.spec.ts"
+        "src/onlinestorage/onlinestorage.service.spec.ts",
+        "src/event/event.service.spec.ts",
+        "src/globalstorage/globalstorage.controller.spec.ts",
+        "src/globalstorage/globalstorage.service.spec.ts"
     ]
 }

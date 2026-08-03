@@ -23,7 +23,9 @@
            main.ts write ValidationPipe
 
 
-           npm i nestjs-cls
+           npm i nestjs-cls //shared preferences for nodejs
+
+           npm install @nestjs/websockets @nestjs/platform-socket.io socket.io
 
 
 

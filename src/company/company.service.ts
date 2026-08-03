@@ -23,7 +23,7 @@ export class CompanyService {
   // Barcha kompaniyalarni olish
   async findAll(): Promise<Company[]> {
     return await this.companyRepository.find({
-      relations: { user: true }
+      relations: { user:{role:true} }
     });
   }
 
@@ -41,6 +41,7 @@ export class CompanyService {
     const query = this.companyRepository.createQueryBuilder('company')
       // Agar kompaniyaga bog'langan boshqa jadvallar bo'lsa, shu yerda leftJoin qilinadi
       .leftJoinAndSelect('company.user', 'user')
+      .leftJoinAndSelect('user.role', 'role');
 
     // 3. Global qidiruv mantiqi (Nomi, Tavsifi yoki Manzili bo'yicha)
     if (search) {
@@ -79,7 +80,7 @@ export class CompanyService {
   async findOne(id: number): Promise<Company> {
     const company = await this.companyRepository.findOne({
       where: { id },
-      relations: { user: true }
+      relations: { user: {role:true} }
     });
     if (!company) {
       throw new NotFoundException(`ID: ${id} bo'lgan kompaniya topilmadi`);

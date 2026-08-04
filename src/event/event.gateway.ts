@@ -1,9 +1,9 @@
-import { 
-  WebSocketGateway, 
-  WebSocketServer, 
-  SubscribeMessage, 
-  MessageBody, 
-  ConnectedSocket, 
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect
 } from '@nestjs/websockets';
@@ -12,37 +12,41 @@ import { EventService } from './event.service';
 import { User } from 'src/user/entities/user.entity';
 
 // cors: '*' - har qanday frontend portidan ulanishga ruxsat beradi
-@WebSocketGateway(3001, {  cors: { origin: '*' } })
+@WebSocketGateway(3001, { cors: { origin: '*' } })
 export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
-    constructor(
-      private readonly eventService:EventService  
-    ){}
-  
+  constructor(
+    private readonly eventService: EventService
+  ) { }
+
   // Socket.io server obyekti (hamma foydalanuvchilarga xabar yuborish uchun)
   @WebSocketServer()
   server: Server;
 
   // Yangi foydalanuvchi ulanganda ishlaydi
-   async handleConnection(client: Socket) {
-    console.log(`Klient ulandi: ${client.id}`);
-    const userid = client.handshake.headers["userid"];
-    const user:User = await this.eventService.findOneUser(Number(userid));
-    client.emit("pong",user.username);
-    // Xavfsizlik: Agar foydalanuvchi bazada yo'q bo'lsa, uzib tashlaymiz
-    if (!user) {
-      console.log(`User topilmadi, uzilmoqda...`);
-      client.disconnect();
-      return;
+  async handleConnection(client: Socket) {
+    try {
+      console.log(`Klient ulandi: ${client.id}`);
+      const userid = client.handshake.headers["userid"];
+      const user = await this.eventService.findOneUser(Number(userid));
+
+      // Xavfsizlik: Agar foydalanuvchi bazada yo'q bo'lsa, uzib tashlaymiz
+      if (!user) {
+        console.log(`User topilmadi, uzilmoqda...`);
+        client.disconnect();
+        return;
+      }
+      client.emit("pong", user.username);
+      // AYNAN SHU YERDA FOYDALANUVCHINI MAP (ROOM) GA QO'SHAMIZ
+      // Agar userid 5 bo'lsa, u "user_5" nomli xonaga kiradi
+      client.join(`user_${user.id}`);
+      console.log(`User ${user.id} ("user_${user.id}" xonasiga) muvaffaqiyatli qo'shildi.`);
+
+      client.emit("pong", user.email);
+      this.server.to(`user_${userid}`).emit('pong', { text: "message nima gap" });
+    } catch (error) {
+
     }
-
-    // AYNAN SHU YERDA FOYDALANUVCHINI MAP (ROOM) GA QO'SHAMIZ
-    // Agar userid 5 bo'lsa, u "user_5" nomli xonaga kiradi
-    client.join(`user_${user.id}`);
-    console.log(`User ${user.id} ("user_${user.id}" xonasiga) muvaffaqiyatli qo'shildi.`);
-
-    client.emit("pong", user.email);
-    this.server.to(`user_${userid}`).emit('pong', { text: "message nima gap" });
   }
 
   // Foydalanuvchi tarmoqdan uzilganda ishlaydi
@@ -57,9 +61,14 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Xabar yuborgan foydalanuvchining o'ziga javob qaytarish
     client.emit('pong', 'Salom, xabaringiz qabul qilindi!');
-     const userid = client.handshake.headers["userid"];
-    const user:User = await this.eventService.findOneUser(Number(userid));
-    client.emit("pong",user.surname);
+    const userid = client.handshake.headers["userid"];
+    const user = await this.eventService.findOneUser(Number(userid));
+     if (!user) {
+        console.log(`User topilmadi, uzilmoqda...`);
+        client.disconnect();
+        return;
+      }
+    client.emit("pong", user.surname);
 
     // Braddcast: O'zidan tashqari hamma ulanganlarga xabar yuborish
     client.broadcast.emit('global_notification', `Yangi xabar keldi: ${data}`);
@@ -68,15 +77,19 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
   // Bu funksiyani EventGateway class-ingiz ichiga qo'shib qo'ying:
-sendNotificationToAll(message: string) {
-  // Serverga ulangan barcha foydalanuvchilarga xabar ketadi
-  this.server.emit('global_notification', { text: message, time: new Date() });
-}
+  sendNotificationToAll(message: string) {
+    // Serverga ulangan barcha foydalanuvchilarga xabar ketadi
+    this.server.emit('global_notification', { text: message, time: new Date() });
+  }
 
-// Agar ma'lum bir userga yubormoqchi bo'lsangiz:
-sendToSpecificUser(userId: number, message: string) {
-  // Avvalroq handleConnection ichida client.join(`user_${userId}`) qilgan bo'lishingiz kerak
-  this.server.to(`user_${userId}`).emit('private_notification', { text: message });
-}
+  // Agar ma'lum bir userga yubormoqchi bo'lsangiz:
+  sendToSpecificUser(userId: number, message: string) {
+    // Avvalroq handleConnection ichida client.join(`user_${userId}`) qilgan bo'lishingiz kerak
+    this.server.to(`user_${userId}`).emit('ping', { text: message });
+  }
+
+
+
+  
 
 }

@@ -167,7 +167,7 @@ export class UserService {
         //   'subjects',
         // ],
       });
-    if (!checkUser) throw new NotFoundException("User not found");
+    //if (!checkUser) throw new NotFoundException("User not found");
 
     return checkUser;
   }

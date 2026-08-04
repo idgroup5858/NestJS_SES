@@ -18,6 +18,9 @@ export class Analysis {
     @Column({ nullable: true })
     price: string;
 
+    @Column({nullable:true,default:false})
+    onlinestorage:boolean
+
     @ManyToOne(() => Company)
     @JoinColumn({ name: "company_id" })
     company: Company;

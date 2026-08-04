@@ -75,7 +75,7 @@ export class GlobalstorageService {
     // Qidiruv — fayl nomi yoki tavsifi bo'yicha
     if (search) {
       query.andWhere(
-        '(globalstorage.name ILIKE :search OR globalstorage.description ILIKE :search OR analysis.name ILIKE :search)',
+        '(globalstorage.name ILIKE :search OR analysis.name ILIKE :search)',
         { search: `%${search}%` },
       );
     }

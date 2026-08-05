@@ -4,7 +4,7 @@ import { EventService } from './event.service';
 import { UserModule } from 'src/user/user.module';
 
 @Module({
-    imports:[UserModule],
+    //imports: [forwardRef(() => EventModule)], // <--- SHU YERGA QO'SHING
     providers:[EventGateway, EventService],
     exports:[EventGateway]
 })

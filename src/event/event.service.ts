@@ -5,12 +5,12 @@ import { UserService } from 'src/user/user.service';
 export class EventService {
 
     constructor(
-        private readonly userService:UserService
+        //private readonly userService:UserService
     ){}
 
 
-    async findOneUser(id:number){
-        const user = await this.userService.findOneForSocket(id);
-        return user;
-    }
+    // async findOneUser(id:number){
+    //     const user = await this.userService.findOneForSocket(id);
+    //     return user;
+    // }
 }

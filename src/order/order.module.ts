@@ -10,9 +10,19 @@ import { UserModule } from 'src/user/user.module';
 import { AnalysisModule } from 'src/analysis/analysis.module';
 import { LaboratoryModule } from 'src/laboratory/laboratory.module';
 import { CompanyModule } from 'src/company/company.module';
+import { EventModule } from 'src/event/event.module';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Order,OrderItem]), PatientModule, RegionModule, UserModule,AnalysisModule,LaboratoryModule,CompanyModule],
+  imports: [
+    TypeOrmModule.forFeature([Order, OrderItem]),
+    PatientModule,
+    RegionModule,
+    UserModule,
+    AnalysisModule,
+    LaboratoryModule,
+    CompanyModule,
+    EventModule
+  ],
   controllers: [OrderController],
   providers: [OrderService],
 })

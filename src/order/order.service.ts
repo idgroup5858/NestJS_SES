@@ -16,6 +16,8 @@ import { AnalysisService } from 'src/analysis/analysis.service';
 import { LaboratoryService } from 'src/laboratory/laboratory.service';
 import { CompanyService } from 'src/company/company.service';
 import { ClsService } from 'nestjs-cls';
+import { EventGateway } from 'src/event/event.gateway';
+import { log } from 'node:console';
 
 @Injectable()
 export class OrderService {
@@ -36,7 +38,7 @@ export class OrderService {
     private companyService: CompanyService,
 
     readonly cls: ClsService,
-
+    readonly eventGateway:EventGateway
 
   ) { }
 
@@ -161,13 +163,19 @@ export class OrderService {
     }
 
     order.status = status;
-    return await this.orderRepository.save(order);
+    const result = await this.orderRepository.save(order)
+    //this.eventGateway.sendNotificationToAll("Tolov qabul qilindi axir")
+    return result;
   }
 
   // ================================
   // TO'LOV statusini yangilash
   // ================================
   async updatePaymentStatus(order_id: number, status: string): Promise<Order> {
+    
+    const company_id = this.cls.get<number>('company_id');
+    console.log("order updatePaymentStatus company_id");
+    console.log(company_id);
     const order = await this.findOne(order_id)
 
     if (!order) {
@@ -175,7 +183,12 @@ export class OrderService {
     }
 
     order.payment_status = status;
-    return await this.orderRepository.save(order);
+
+    const result = await this.orderRepository.save(order);
+    const phoneNumber = result.patient?.phone ? result.patient?.phone : null
+    
+    this.eventGateway.sendToSpecificCompany(company_id,phoneNumber,"Tolov qabul qilindi axir !")
+    return result;
   }
 
   // ================================

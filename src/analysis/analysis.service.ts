@@ -29,12 +29,12 @@ export class AnalysisService {
 
     await this.laboratoryService.findOne(createAnalysisDto.laboratory_id)
 
-    const analysisCheck = await this.analysisRepository.findOne({
-      where: { name: createAnalysisDto.name }
-    });
-    if (analysisCheck) {
-      throw new ConflictException("Analysis already exist")
-    }
+    // const analysisCheck = await this.analysisRepository.findOne({
+    //   where: { name: createAnalysisDto.name }
+    // });
+    // if (analysisCheck) {
+    //   throw new ConflictException("Analysis already exist")
+    // }
 
     const analysis = this.analysisRepository.create({
       ...createAnalysisDto,

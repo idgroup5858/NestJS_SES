@@ -102,7 +102,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // Agar ma'lum bir userga yubormoqchi bo'lsangiz:
-  async sendToSpecificCompany(companyid: number,phone:string|null, message: string) {
+  async sendToSpecificCompany(companyid: number,phone:string|null, final_amount:string, message: string) {
     // Avvalroq handleConnection ichida client.join(`user_${userId}`) qilgan bo'lishingiz kerak
     const sockets = await this.server.in(`company_${companyid}`).fetchSockets();
     if (sockets.length === 0) {
@@ -110,6 +110,6 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // Kerak bo'lsa, jo'natuvchiga xabar berish mumkin:
         return;
       }
-    this.server.to(`company_${companyid}`).emit('company', { text: message ,phone});
+    this.server.to(`company_${companyid}`).emit('company', { text: message ,phone,final_amount});
   }
 }

@@ -185,9 +185,11 @@ export class OrderService {
     order.payment_status = status;
 
     const result = await this.orderRepository.save(order);
-    const phoneNumber = result.patient?.phone ? result.patient?.phone : null
+    const phoneNumber = result.patient?.phone ? result.patient?.phone : null;
+    const final_amount = result.final_amount;
     
-    this.eventGateway.sendToSpecificCompany(company_id,phoneNumber,"Tolov qabul qilindi axir !")
+    
+    this.eventGateway.sendToSpecificCompany(company_id,phoneNumber,final_amount,"Tolov qabul qilindi axir !")
     return result;
   }
 

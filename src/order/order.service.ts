@@ -537,7 +537,7 @@ export class OrderService {
     const result = await this.orderRepository.save(order);
     const phoneNumber = result.patient?.phone ? result.patient?.phone : null;
        
-    if(phoneNumber){
+    if(phoneNumber && result.result_link_sms){
       this.eventGateway.sendToSpecificCompany(company_id,phoneNumber,result.result_link_sms ? result.result_link_sms :null,"Tolov qabul qilindi axir !");
     }
 

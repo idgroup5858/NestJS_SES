@@ -87,10 +87,10 @@ export class AnalysisService {
       query.where('analysis.company_id = :company_id', { company_id: company_id });
     }
 
-    
+
     if (search) {
       query.andWhere(
-        'analysis.name ILIKE :search OR analysis.shortname ILIKE :search',  //LIKE MYSQL ILIKE POSTGRESQL
+        'analysis.name ILIKE :search OR analysis.shortname ILIKE :search OR laboratory.name ILIKE :search',  //LIKE MYSQL ILIKE POSTGRESQL
         { search: `%${search}%` }
       );
     }

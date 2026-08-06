@@ -83,17 +83,19 @@ export class AnalysisService {
     // .leftJoinAndSelect('items.product', 'product')
     // .leftJoinAndSelect('sale.customer', 'customer');
 
+    if (company_id) {
+      query.where('analysis.company_id = :company_id', { company_id: company_id });
+    }
 
+    
     if (search) {
-      query.where(
+      query.andWhere(
         'analysis.name ILIKE :search OR analysis.shortname ILIKE :search',  //LIKE MYSQL ILIKE POSTGRESQL
         { search: `%${search}%` }
       );
     }
 
-    if (company_id) {
-      query.where('analysis.company_id = :company_id', { company_id: company_id });
-    }
+
 
     const [data, total] = await query
       .orderBy('analysis.id', 'DESC')
@@ -137,10 +139,11 @@ export class AnalysisService {
 
   async findOneWithOutToken(id: number) {
 
-  
+
     const analysis = await this.analysisRepository.findOne({
       where: {
-        id: id },
+        id: id
+      },
       relations: {
         laboratory: true,
         pattern: true

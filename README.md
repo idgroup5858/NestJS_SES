@@ -95,6 +95,12 @@
             sudo npm install -g pm2
             pm2 start dist/main.js --name nest-app
 
+            update backend
+
+            git pull
+            npm run build
+            pm2 restart 0
+
 
 
 

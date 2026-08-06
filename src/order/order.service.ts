@@ -186,10 +186,11 @@ export class OrderService {
 
     const result = await this.orderRepository.save(order);
     const phoneNumber = result.patient?.phone ? result.patient?.phone : null;
-    const final_amount = result.final_amount;
+       
+    if(phoneNumber){
+      this.eventGateway.sendToSpecificCompany(company_id,phoneNumber,null,"Tolov qabul qilindi axir !");
+    }
     
-    
-    this.eventGateway.sendToSpecificCompany(company_id,phoneNumber,final_amount,"Tolov qabul qilindi axir !")
     return result;
   }
 
@@ -473,6 +474,8 @@ export class OrderService {
   }
 
   async update(id: number, dto: UpdateOrderDto): Promise<Order> {
+     const company_id = this.cls.get<number>('company_id');
+    console.log("order update  company_id");
     const order = await this.findOne(id)
 
     if (!order) {
@@ -488,7 +491,10 @@ export class OrderService {
     if (dto.description !== undefined) order.description = dto.description;
     if (dto.payment_sms !== undefined) order.payment_sms = dto.payment_sms;
     if (dto.completed_sms !== undefined) order.completed_sms = dto.completed_sms;
-    if (dto.result_link_sms !== undefined) order.result_link_sms = dto.result_link_sms;
+    if (dto.result_link_sms !== undefined) {
+      order.result_link_sms = dto.result_link_sms;
+      
+    }
 
     // Relation maydonlarni yangilaymiz
     if (dto.owner_id !== undefined) {
@@ -528,7 +534,14 @@ export class OrderService {
       });
     }
 
-    return await this.orderRepository.save(order);
+    const result = await this.orderRepository.save(order);
+    const phoneNumber = result.patient?.phone ? result.patient?.phone : null;
+       
+    if(phoneNumber){
+      this.eventGateway.sendToSpecificCompany(company_id,phoneNumber,result.result_link_sms ? result.result_link_sms :null,"Tolov qabul qilindi axir !");
+    }
+
+    return result;
   }
 
   async remove(id: number) {
